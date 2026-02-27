@@ -64,6 +64,8 @@ function doPost(e) {
       case "savePost":       out = withAdmin(p, function(u){ return savePost(body.data, u); });        break;
       case "deletePost":     out = withAdmin(p, function(u){ return deletePost(body.id, u); });        break;
       case "updateUserRole": out = withAdmin(p, function(u){ return DB.updateUserRole(body.email, body.role); }); break;
+      case "banUser":        out = withAdmin(p, function(u){ if (u.email === body.email) throw new Error("You cannot ban yourself."); return DB.setBanStatus(body.email, true); });  break;
+      case "unbanUser":      out = withAdmin(p, function(u){ return DB.setBanStatus(body.email, false); }); break;
       case "uploadImage":    out = withAdmin(p, function(u){ return uploadImageToDrive(body.filename, body.mimeType, body.data); }); break;
       case "setup":          out = setupSheets();                                                       break;
       default:             out = {error: "Unknown action"};

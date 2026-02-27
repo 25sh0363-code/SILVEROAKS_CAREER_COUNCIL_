@@ -130,6 +130,23 @@ var DB = (function () {
     if (!found) throw new Error("User not found: " + email);
     return { ok: true };
   }
+
+  function setBanStatus(email, banned) {
+    var s    = sheet("Users");
+    var data = s.getDataRange().getValues();
+    var hdrs = data[0];
+    var emailIdx  = hdrs.indexOf("Email");
+    var statusIdx = hdrs.indexOf("Status");
+    if (emailIdx === -1 || statusIdx === -1) throw new Error("Users sheet missing expected columns.");
+    var norm = email.toLowerCase();
+    for (var i = 1; i < data.length; i++) {
+      if (data[i][emailIdx] && data[i][emailIdx].toLowerCase() === norm) {
+        s.getRange(i + 1, statusIdx + 1).setValue(banned ? "Banned" : "Active");
+        return { ok: true };
+      }
+    }
+    throw new Error("User not found: " + email);
+  }
   // ── Dashboard stats ───────────────────────────────────────────────────────
 
   /**
@@ -285,6 +302,7 @@ var DB = (function () {
     getUserByEmail:   getUserByEmail,
     getAllUsers:       getAllUsers,
     updateUserRole:   updateUserRole,
+    setBanStatus:      setBanStatus,
     getDashboardStats:getDashboardStats,
     setupSheets:      setupSheets,
   };

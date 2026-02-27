@@ -881,11 +881,19 @@ function pageStaff() {
     var rows  = users && users.length
       ? '<div style="overflow-x:auto"><table class="data-table"><thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th>Action</th></tr></thead><tbody>' +
         users.map(function(u) {
-          var sel = '<select class="form-control" style="padding:4px 8px;font-size:.82rem;width:auto" id="role-'+esc(u.Email)+'">' +
+          var isBanned = u.Status === "Banned";
+          var isSelf   = u.Email === APP_USER.email;
+          var sel = '<select class="form-control" style="padding:4px 8px;font-size:.82rem;width:auto" id="role-'+esc(u.Email)+'"'+(isBanned?' disabled':'')+'>'+
             roles.map(function(r){ return '<option value="'+r+'"'+(u.Role===r?' selected':'')+'>'+r+'</option>'; }).join("") +
             '</select>';
-          return '<tr><td>'+esc(u.Name||"—")+'</td><td style="font-size:.82rem">'+esc(u.Email)+'</td><td>'+sel+'</td><td>'+esc(u.Status||"")+'</td>' +
-                 '<td><button class="btn btn-primary btn-sm" onclick="_updateRole(\''+esc(u.Email)+'\')" >Save</button></td></tr>';
+          var banBtn = isSelf ? '' :
+            isBanned
+              ? '<button class="btn btn-sm" style="background:#2f855a;color:#fff" onclick="_unbanUser(\''+esc(u.Email)+'\')">✅ Unban</button>'
+              : '<button class="btn btn-danger btn-sm" onclick="_banUser(\''+esc(u.Email)+'\')">🚫 Ban</button>';
+          var rowStyle = isBanned ? ' style="opacity:.55;background:#fff5f5"' : '';
+          return '<tr'+rowStyle+'><td>'+esc(u.Name||"—")+'</td><td style="font-size:.82rem">'+esc(u.Email)+'</td><td>'+sel+'</td>'+
+                 '<td>'+(isBanned?'<span style="color:var(--danger);font-weight:700">Banned</span>':'<span style="color:var(--success)">Active</span>')+'</td>'+
+                 '<td><div class="actions">'+(isBanned?'':'<button class="btn btn-primary btn-sm" onclick="_updateRole(\''+esc(u.Email)+'\')">Save</button>')+banBtn+'</div></td></tr>';
         }).join("") +
         '</tbody></table></div>'
       : '<div class="empty"><div class="empty-icon">👤</div><p>No users yet.</p></div>';
@@ -935,6 +943,22 @@ function _updateRole(email) {
   if (!confirm("Change role of " + email + " to " + newRole + "?")) return;
   apiPost("updateUserRole", {email: email, role: newRole}, function() {
     toast("Role updated to " + newRole + " for " + email + " ✓");
+    pageStaff();
+  });
+}
+
+function _banUser(email) {
+  if (!confirm("Ban " + email + "?\nThey will immediately lose access to the site.")) return;
+  apiPost("banUser", {email: email}, function() {
+    toast("🚫 " + email + " has been banned.");
+    pageStaff();
+  });
+}
+
+function _unbanUser(email) {
+  if (!confirm("Unban " + email + "?\nThey will regain access to the site.")) return;
+  apiPost("unbanUser", {email: email}, function() {
+    toast("✅ " + email + " has been unbanned.");
     pageStaff();
   });
 }
