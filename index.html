@@ -275,10 +275,27 @@ function showChrome() {
   document.getElementById("site-header").classList.remove("hidden");
   document.getElementById("site-footer").classList.remove("hidden");
   document.getElementById("nav-user").innerHTML =
-    "👤 " + esc(APP_USER.name) +
-    (APP_USER.isAdmin ? ' <span class="user-badge">' + esc(APP_USER.role) + "</span>" : "");
+    '<span style="color:rgba(255,255,255,.82);font-size:.86rem">👤 ' + esc(APP_USER.name) +
+    (APP_USER.isAdmin ? ' <span class="user-badge">' + esc(APP_USER.role) + '</span>' : '') +
+    '</span> <button onclick="signOut()" style="margin-left:8px;padding:5px 12px;border-radius:var(--radius-sm);border:1px solid rgba(255,255,255,.35);background:rgba(255,255,255,.1);color:#fff;font-size:.8rem;cursor:pointer">Sign out</button>';
   if (APP_USER.isAdmin) {
     document.getElementById("nav-staff").classList.remove("hidden");
+  }
+}
+
+function signOut() {
+  _idToken = null;
+  APP_USER = null;
+  sessionStorage.removeItem("gas_id_token");
+  if (window.google && google.accounts && google.accounts.id) {
+    google.accounts.id.disableAutoSelect();
+  }
+  document.getElementById("site-header").classList.add("hidden");
+  document.getElementById("site-footer").classList.add("hidden");
+  document.getElementById("nav-staff").classList.add("hidden");
+  renderLogin(null);
+  if (window.google && google.accounts && google.accounts.id) {
+    google.accounts.id.prompt();
   }
 }
 
