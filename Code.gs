@@ -12,7 +12,7 @@
 var CONFIG = {
   APP_NAME:       "Career Laboratory Resource Website",
   ALLOWED_DOMAIN: "hyd.silveroaks.co.in",      // no leading @
-  SPREADSHEET_ID: "PUT_YOUR_SHEET_ID_HERE",    // ← Replace with your Google Sheet ID
+  SPREADSHEET_ID: "1nDVOm72SBdR-Nf3AfWwi5QOZP5QxCXSLu3W1QnA29w0",    // ← Replace with your Google Sheet ID
   PAGE_SIZE:      9,
   CLIENT_ID:      "PUT_YOUR_OAUTH_CLIENT_ID",  // ← Google Cloud OAuth 2.0 client ID
 };
@@ -64,6 +64,7 @@ function doPost(e) {
       case "savePost":       out = withAdmin(p, function(u){ return savePost(body.data, u); });        break;
       case "deletePost":     out = withAdmin(p, function(u){ return deletePost(body.id, u); });        break;
       case "updateUserRole": out = withAdmin(p, function(u){ return DB.updateUserRole(body.email, body.role); }); break;
+      case "uploadImage":    out = withAdmin(p, function(u){ return uploadImageToDrive(body.filename, body.mimeType, body.data); }); break;
       case "setup":          out = setupSheets();                                                       break;
       default:             out = {error: "Unknown action"};
     }
@@ -174,4 +175,30 @@ function deletePost(id, user) {
 /** Run once from Apps Script editor to create sheets + seed sample data */
 function setupSheets() {
   return DB.setupSheets();
+}
+
+/**
+ * Uploads a base64-encoded image to a dedicated Google Drive folder
+ * and returns a publicly accessible direct image URL.
+ */
+function uploadImageToDrive(filename, mimeType, base64Data) {
+  if (!filename || !mimeType || !base64Data) throw new Error("Missing image data.");
+
+  // Find or create a folder called "CareerLab Thumbnails" in Drive root
+  var folderName = "CareerLab Thumbnails";
+  var folders = DriveApp.getFoldersByName(folderName);
+  var folder   = folders.hasNext() ? folders.next() : DriveApp.createFolder(folderName);
+
+  // Decode base64 → blob
+  var blob = Utilities.newBlob(Utilities.base64Decode(base64Data), mimeType, filename);
+
+  // Save file to folder
+  var file = folder.createFile(blob);
+
+  // Make it publicly viewable (anyone with link)
+  file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+
+  // Return direct image URL
+  var fileId = file.getId();
+  return { ok: true, url: "https://drive.google.com/uc?export=view&id=" + fileId };
 }
