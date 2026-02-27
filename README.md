@@ -1,128 +1,93 @@
-# Career Laboratory Resource Website
+# Silver Oaks Career Laboratory
 
-Internal learning platform for **Silver Oaks Hyderabad**.  
-Restricted to `@hyd.silveroaks.co.in` Google Workspace accounts.
+An internal Learning Management System (LMS) for Silver Oaks International School, Hyderabad. Students browse career-focused courses and blog posts; staff manage all content through a built-in portal.
+
+**Live site:** https://25sh0363-code.github.io/SILVEROAKS_CAREER_COUNCIL_/
 
 ---
 
-## How it works
+## Features
+
+- **School-only login** — Google OAuth restricted to `@hyd.silveroaks.co.in` accounts
+- **Courses** — filterable by grade (Class 7–12) and category, with YouTube videos, PDF links, and thumbnail images
+- **Blog** — articles with featured images and tags
+- **Staff portal** — Admins and Editors can create, edit, and delete courses and posts
+- **User management** — Admins can change user roles (Admin / Editor / Student) from the portal
+- **Image upload** — Course thumbnails can be uploaded directly; images are stored in Google Drive
+- **Dashboard** — charts showing course counts by category and grade
+
+---
+
+## Tech Stack
 
 | Layer | Technology |
 |-------|-----------|
-| Website | `index.html` hosted on **GitHub Pages** |
-| Backend | **Google Apps Script** web app — returns JSON |
-| Database | **Google Sheets** — Users, Courses, Blogs tabs |
-| Sign-in | **Google Identity Services** (school account, one-tap) |
-
-Users sign in with their school Google account. The frontend sends the Google ID token on every API call. Apps Script verifies the token, checks the domain, and returns the requested data.
+| Frontend | Single-page HTML/CSS/JS (`index.html`) hosted on GitHub Pages |
+| Backend | Google Apps Script (GAS) Web App |
+| Database | Google Sheets (Users, Courses, Blogs tabs) |
+| Auth | Google Identity Services (OAuth 2.0) |
+| Storage | Google Drive (thumbnail images) |
 
 ---
 
-## Setup
-
-### 1 — Google Sheet
-
-1. Open [sheets.google.com](https://sheets.google.com) → create a new blank spreadsheet.
-2. Copy the **Spreadsheet ID** from the URL:
+## Project Structure
 
 ```
-https://docs.google.com/spreadsheets/d/►SPREADSHEET_ID◄/edit
+index.html              — Full frontend (one file, no build step)
+Code.gs                 — GAS router: doGet / doPost endpoints
+Auth.gs                 — Token verification, role enforcement
+SheetsDB.gs             — Low-level Sheets read/write helpers
+CoursesAPI.gs           — Course CRUD, search, grade/category filters
+BlogsAPI.gs             — Blog post CRUD
+appsscript.json         — GAS manifest and OAuth scopes
+TRANSFER_OWNERSHIP.md   — Steps to hand the project to a new account
 ```
-
----
-
-### 2 — Apps Script (backend)
-
-1. Inside the sheet → **Extensions → Apps Script**.
-2. Add the following files (**+ Add file → Script** for each new one):
-
-| File name in Apps Script | Source file |
-|--------------------------|-------------|
-| `Code` (default file) | `Code.gs` |
-| `Auth` | `Auth.gs` |
-| `SheetsDB` | `SheetsDB.gs` |
-| `CoursesAPI` | `CoursesAPI.gs` |
-| `BlogsAPI` | `BlogsAPI.gs` |
-
-> Do **not** add `index.html` to Apps Script. The frontend lives on GitHub Pages.
-
-3. In `Code.gs`, find and replace the placeholder on line ~15:
-
-```js
-SPREADSHEET_ID: "PUT_YOUR_SHEET_ID_HERE",
-```
-
-4. Select **`setupSheets`** in the function dropdown → click **Run** → approve permissions.  
-   This creates the three sheet tabs with headers and sample data.
-
-5. In the **Users** tab, set your own row to `Admin` + `Active`:
-
-| Name | Email | Role | Status |
-|------|-------|------|--------|
-| Your Name | you@hyd.silveroaks.co.in | Admin | Active |
-
-6. **Deploy → New deployment → Web app**
-   - Execute as: **Me**
-   - Who has access: **Anyone**
-   - Click **Deploy** → copy the **Web App URL**.
-
----
-
-### 3 — Google OAuth Client ID
-
-1. Go to [console.cloud.google.com](https://console.cloud.google.com).
-2. **APIs & Services → Credentials → Create Credentials → OAuth 2.0 Client ID**
-3. Application type: **Web application**
-4. Add to **Authorised JavaScript origins**:
-   - `https://YOUR-USERNAME.github.io`
-   - `http://localhost`
-5. Click **Create** → copy the **Client ID**.
-
----
-
-### 4 — Configure index.html
-
-Open `index.html` and fill in both variables near the top of the `<script>` block:
-
-```js
-var GAS_URL   = "https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec";
-var CLIENT_ID = "YOUR_CLIENT_ID.apps.googleusercontent.com";
-```
-
----
-
-### 5 — Push to GitHub & enable Pages
-
-1. Push this repo to GitHub.
-2. Go to **Settings → Pages → Source → GitHub Actions**.
-3. Every push to `main` auto-deploys via `.github/workflows/pages.yml`.
-4. Live URL: `https://YOUR-USERNAME.github.io/REPO-NAME/`
-
-Share this link with staff and students.
 
 ---
 
 ## Roles
 
-| Role | Can do |
-|------|--------|
-| Student | View published courses and blog posts |
-| Editor | Create and edit courses and posts |
-| Admin | Everything, including delete |
+| Role | Permissions |
+|------|-------------|
+| **Admin** | Everything — manage courses, posts, and user roles |
+| **Editor** | Create and edit courses and blog posts |
+| **Student** | Read-only access to published content |
 
-Roles are set in the **Users** sheet. First-time sign-ins are auto-added as `Student / Active`.
+The first Admin must be added manually to the **Users** tab in the Google Sheet.
 
 ---
 
-## Files
+## Configuration
 
+Two variables near the top of `index.html` must match your deployment:
+
+```js
+var GAS_URL   = "https://script.google.com/macros/s/<deployment-id>/exec";
+var CLIENT_ID = "<your-oauth-client-id>.apps.googleusercontent.com";
 ```
-index.html                    Frontend — full SPA, all CSS and JS in one file
-Code.gs                       API router (doGet / doPost)
-Auth.gs                       Google ID token verification
-SheetsDB.gs                   Sheets read/write helpers
-CoursesAPI.gs                 Course logic, YouTube embed, Drive PDF download
-BlogsAPI.gs                   Blog logic, tag filtering, search
-appsscript.json               Apps Script manifest
-.github/workflows/pages.yml   GitHub Actions auto-deploy to Pages
-```
+
+---
+
+## Setup Summary
+
+1. Paste all `.gs` files into a new Google Apps Script project linked to a Google Sheet.
+2. Run `setupSheets()` once to create the Users, Courses, and Blogs tabs.
+3. Deploy the GAS project as a Web App (Execute as: **Me**, Access: **Anyone**).
+4. Create an OAuth 2.0 Client ID in Google Cloud Console (Web application type).
+5. Add the authorized JavaScript origin for your GitHub Pages URL.
+6. Update `GAS_URL` and `CLIENT_ID` in `index.html`, then push to GitHub.
+7. Enable GitHub Pages on the repo (branch: `main`, root folder).
+8. Add the first Admin row to the Users sheet manually.
+
+Full transfer and setup steps: see [TRANSFER_OWNERSHIP.md](TRANSFER_OWNERSHIP.md)
+
+---
+
+## Current Deployment
+
+| Item | Value |
+|------|-------|
+| GitHub Pages | https://25sh0363-code.github.io/SILVEROAKS_CAREER_COUNCIL_/ |
+| GAS Deployment ID | `AKfycbzb4VXX_hrly9ShNPQ8jtZuvhOrNmuBqQ_GejKfYLS_i6fecjyIFyxzyIXhQXbmF96a` |
+| Google Sheet ID | `1nDVOm72SBdR-Nf3AfWwi5QOZP5QxCXSLu3W1QnA29w0` |
+| OAuth Client ID | `392344488331-qt8b726lvhbldl9bptpj58bagj8qq2af` |
