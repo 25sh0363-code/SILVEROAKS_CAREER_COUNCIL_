@@ -122,7 +122,7 @@ After transferring GAS to the new account, new uploads will go to the new accoun
 
 | Item | Value |
 |------|-------|
-| GAS URL | `https://script.google.com/macros/s/AKfycbzb4VXX_hrly9ShNPQ8jtZuvhOrNmuBqQ_GejKfYLS_i6fecjyIFyxzyIXhQXbmF96a/exec` |
+| GAS URL | `https://script.google.com/macros/s/AKfycbzNZG0i3UcWjUgD4aW3sFwIFVyR939dOSliZqiNyCKt5NEKV_FiNvlVxlO2LKZYVC2S/exec` |
 | OAuth Client ID | `392344488331-qt8b726lvhbldl9bptpj58bagj8qq2af.apps.googleusercontent.com` |
 | Sheet ID | `1nDVOm72SBdR-Nf3AfWwi5QOZP5QxCXSLu3W1QnA29w0` |
 | GitHub Pages | `https://25sh0363-code.github.io/SILVEROAKS_CAREER_COUNCIL_/` |
