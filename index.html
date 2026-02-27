@@ -164,6 +164,7 @@ textarea.form-control{min-height:110px;resize:vertical}
 .filter-bar{display:flex;flex-wrap:wrap;gap:7px;align-items:center;margin-bottom:22px}
 
 .site-footer{background:var(--primary-dark);color:rgba(255,255,255,.7);padding:32px 20px;text-align:center;font-size:.82rem;margin-top:auto}
+#nprogress{height:3px;background:var(--accent);position:fixed;top:0;left:0;z-index:99999;transition:width .25s ease,opacity .3s ease;width:0;opacity:1}
 
 @media(max-width:640px){.section{padding:30px 0}.hero{padding:48px 16px}.hero h1{font-size:1.6rem}.panel{margin:36px 16px;padding:26px 18px}.actions{flex-wrap:wrap}#toast-box{right:12px;left:12px;bottom:12px}.toast{max-width:100%}}
 </style>
@@ -335,20 +336,49 @@ function setActiveNav(page) {
   });
 }
 
+var _npEl;
+function _npStart() {
+  if (!_npEl) { _npEl = document.createElement("div"); _npEl.id = "nprogress"; document.body.appendChild(_npEl); }
+  _npEl.style.opacity = "1"; _npEl.style.width = "0";
+  setTimeout(function(){ if(_npEl) _npEl.style.width = "70%"; }, 30);
+}
+function _npDone() {
+  if (!_npEl) return;
+  _npEl.style.width = "100%";
+  setTimeout(function(){ if(_npEl){ _npEl.style.opacity = "0"; _npEl.style.width = "0"; } }, 280);
+}
+
+var _cache   = {};
+var CACHE_TTL = 45000;
+function _cacheGet(k){ var e = _cache[k]; return (e && Date.now() - e.ts < CACHE_TTL) ? e.data : null; }
+function _cacheSet(k, d){ _cache[k] = { ts: Date.now(), data: d }; }
+function _cacheInvalidate(){ _cache = {}; }
+
 function api(action, params, onOk, onErr) {
   var p = Object.assign({}, params, { action: action, token: _idToken || "" });
   var qs = Object.keys(p).map(function(k) {
     return encodeURIComponent(k) + "=" + encodeURIComponent(p[k] !== undefined ? p[k] : "");
   }).join("&");
-  showLoader();
+  var cacheKey = action + "|" + qs;
+  var cached = _cacheGet(cacheKey);
+  if (cached) {
+    onOk(cached);
+    fetch(GAS_URL + "?" + qs)
+      .then(function(r){ return r.json(); })
+      .then(function(data){ if (data && !data.error){ _cacheSet(cacheKey, data); onOk(data); } })
+      .catch(function(){});
+    return;
+  }
+  _npStart();
   fetch(GAS_URL + "?" + qs)
     .then(function(r) { return r.json(); })
     .then(function(data) {
-      hideLoader();
+      _npDone();
       if (data && data.error) { (onErr || defaultErr)(new Error(data.error)); return; }
+      _cacheSet(cacheKey, data);
       onOk(data);
     })
-    .catch(function(e) { hideLoader(); (onErr || defaultErr)(e); });
+    .catch(function(e) { _npDone(); (onErr || defaultErr)(e); });
 }
 
 function apiPost(action, body, onOk, onErr) {
@@ -363,6 +393,7 @@ function apiPost(action, body, onOk, onErr) {
     .then(function(data) {
       hideLoader();
       if (data && data.error) { (onErr || defaultErr)(new Error(data.error)); return; }
+      _cacheInvalidate();
       onOk(data);
     })
     .catch(function(e) { hideLoader(); (onErr || defaultErr)(e); });
