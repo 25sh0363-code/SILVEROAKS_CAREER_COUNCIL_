@@ -1045,8 +1045,14 @@ function pageStaffCourseForm(course) {
       return '<option value="'+g+'"'+(isEdit&&course.Grade===g?' selected':'')+'>'+g+'</option>';
     }).join("") +
     '</select></div>' +
-    '<div class="form-group"><label class="form-label">Thumbnail URL</label>' +
-    '<input id="f-thumb" class="form-control" value="'+v("ThumbnailURL")+'" placeholder="https://…"></div>' +
+    '<div class="form-group"><label class="form-label">Thumbnail</label>' +
+    '<div style="display:flex;flex-direction:column;gap:8px">' +
+    '<input type="file" id="f-thumb-file" accept="image/*" class="form-control" style="padding:6px" onchange="previewThumb(this)">' +
+    '<span id="f-thumb-status" style="font-size:.78rem;color:var(--muted)"></span>' +
+    '<img id="f-thumb-img" src="'+v("ThumbnailURL")+'" style="max-height:120px;border-radius:8px;border:1px solid #ddd;display:'+(isEdit&&course&&course.ThumbnailURL?'block':'none')+'">' +
+    '<div style="font-size:.8rem;color:var(--muted)">— or paste a URL directly —</div>' +
+    '<input id="f-thumb" class="form-control" value="'+v("ThumbnailURL")+'" placeholder="https://…">' +
+    '</div></div>' +
     '<div class="form-group"><label class="form-label">YouTube URL</label>' +
     '<input id="f-yt" class="form-control" value="'+v("YouTubeURL")+'" placeholder="https://www.youtube.com/watch?v=…"></div>' +
     '<div class="form-group"><label class="form-label">PDF Google Drive Link</label>' +
@@ -1064,6 +1070,34 @@ function pageStaffCourseForm(course) {
     '<button class="btn btn-primary" onclick="submitCourse()">💾 Save Course</button>' +
     '<button class="btn btn-ghost" onclick="route(\'staff\')">Cancel</button>' +
     '</div></div></div></div></section>';
+}
+
+function previewThumb(input) {
+  var file = input.files[0];
+  if (!file) return;
+  var status = document.getElementById("f-thumb-status");
+  var img    = document.getElementById("f-thumb-img");
+  var urlEl  = document.getElementById("f-thumb");
+  status.textContent = "Uploading\u2026";
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    var base64 = e.target.result.split(",")[1];
+    apiPost(
+      "uploadImage",
+      { filename: file.name, mimeType: file.type, data: base64 },
+      function(res) {
+        urlEl.value = res.url;
+        img.src = res.url;
+        img.style.display = "block";
+        status.textContent = "\u2713 Uploaded";
+        setTimeout(function(){ status.textContent = ""; }, 3000);
+      },
+      function(err) {
+        status.textContent = "Upload failed: " + (err.message || "unknown error");
+      }
+    );
+  };
+  reader.readAsDataURL(file);
 }
 
 function submitCourse() {
