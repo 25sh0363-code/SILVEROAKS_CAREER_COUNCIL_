@@ -287,9 +287,9 @@ function showChrome() {
   document.getElementById("site-header").classList.remove("hidden");
   document.getElementById("site-footer").classList.remove("hidden");
   document.getElementById("nav-user").innerHTML =
-    '<span style="color:rgba(255,255,255,.82);font-size:.86rem">👤 ' + esc(APP_USER.name) +
+    '<span style="color:var(--muted);font-size:.86rem">👤 ' + esc(APP_USER.name) +
     (APP_USER.isAdmin ? ' <span class="user-badge">' + esc(APP_USER.role) + '</span>' : '') +
-    '</span> <button onclick="signOut()" style="margin-left:8px;padding:5px 12px;border-radius:var(--radius-sm);border:1px solid rgba(255,255,255,.35);background:rgba(255,255,255,.1);color:#fff;font-size:.8rem;cursor:pointer">Sign out</button>';
+    '</span> <button onclick="signOut()" style="margin-left:8px;padding:5px 12px;border-radius:var(--radius-sm);border:1px solid var(--border);background:#fff;color:var(--text);font-size:.8rem;cursor:pointer">Sign out</button>';
   if (APP_USER.isAdmin) {
     document.getElementById("nav-staff").classList.remove("hidden");
   }
@@ -573,16 +573,16 @@ function renderLogin(errMsg) {
   document.getElementById("site-header").classList.add("hidden");
   document.getElementById("site-footer").classList.add("hidden");
   document.getElementById("app").innerHTML =
-    '<div style="background:linear-gradient(135deg,#1e3a5f,#2d6a9f);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px">' +
+    '<div style="background:var(--primary);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px">' +
     '<div style="width:100%;max-width:420px">' +
     '<div style="text-align:center;margin-bottom:24px">' +
     '<div style="font-size:3.2rem">🎓</div>' +
     '<h1 style="color:#fff;font-size:1.5rem;margin-top:8px">'+APP_NAME+'</h1>' +
-    '<p style="color:rgba(255,255,255,.75);font-size:.88rem">Silver Oaks Hyderabad — Internal Platform</p>' +
+    '<p style="color:rgba(255,255,255,.72);font-size:.88rem">Silver Oaks Hyderabad — Internal Platform</p>' +
     '</div>' +
-    '<div style="background:#18181B;border-radius:14px;padding:34px;box-shadow:0 20px 60px rgba(0,0,0,.6);border:1px solid #27272A">' +
-    '<h2 style="text-align:center;margin-bottom:8px">Welcome</h2>' +
-    '<p style="text-align:center;color:#718096;font-size:.88rem;margin-bottom:22px">Only <strong>@hyd.silveroaks.co.in</strong> accounts are allowed.</p>' +
+    '<div style="background:#fff;border-radius:14px;padding:34px;box-shadow:0 20px 60px rgba(0,0,0,.25)">' +
+    '<h2 style="text-align:center;margin-bottom:8px;color:var(--text)">Welcome</h2>' +
+    '<p style="text-align:center;color:var(--muted);font-size:.88rem;margin-bottom:22px">Only <strong>@hyd.silveroaks.co.in</strong> accounts are allowed.</p>' +
     (errMsg ? '<div class="alert alert-danger">⚠ '+esc(errMsg)+'</div>' : '<div class="alert alert-info" style="justify-content:center">🔐 Click below to sign in with your school account.</div>') +
     '<div id="g_signin_btn" style="display:flex;justify-content:center;margin-top:18px"></div>' +
     '</div></div></div>';
