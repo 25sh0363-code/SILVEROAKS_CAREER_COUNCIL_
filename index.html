@@ -58,6 +58,7 @@ p{margin-bottom:1rem}
 .hero{background:linear-gradient(135deg,var(--primary),#2d6a9f);color:#fff;padding:72px 20px;text-align:center}
 .hero h1{color:#fff;margin-bottom:14px}
 .hero p{color:rgba(255,255,255,.85);font-size:1.1rem;max-width:580px;margin:0 auto 26px}
+.hero-img{width:100%;max-width:900px;margin:0 auto 32px;border-radius:var(--radius);object-fit:cover;max-height:360px;box-shadow:0 8px 32px rgba(0,0,0,.25);display:block}
 
 .card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;display:flex;flex-direction:column;transition:transform var(--t),box-shadow var(--t)}
 .card:hover{transform:translateY(-3px);box-shadow:var(--shadow-h)}
@@ -433,6 +434,7 @@ function toast(msg, type) {
   }, 3200);
 }
 
+
 function esc(s) {
   return String(s || "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
 }
@@ -603,6 +605,7 @@ function render404() {
 function pageHome() {
   document.getElementById("app").innerHTML =
     '<section class="hero"><div class="container">' +
+    '<img src="silveroaksx.jpg" alt="Silver Oaks Career Council" class="hero-img">' +
     '<h1>Career Laboratory Resource Website</h1>' +
     '<p>Your internal hub for courses, PDFs, videos and career resources — Silver Oaks Hyderabad.</p>' +
     '<div class="search-bar" style="justify-content:center;max-width:480px;margin:0 auto">' +
