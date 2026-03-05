@@ -1041,21 +1041,30 @@ function pageStaff() {
 
   api("allCourses", {}, function(courses) {
     api("allPosts", {}, function(posts) {
-      document.getElementById("staff-tables").innerHTML =
-        '<div class="card"><div class="card-body">' +
-        '<div class="flex-between mb-2"><h3>📚 Courses</h3><button class="btn btn-primary btn-sm" onclick="route(\'staff-course-form\',{course:null})">+ Add Course</button></div>' +
-        buildAdminTable(courses,
-          ["Title","Category","Grade","Status"],
-          function(c){ return [esc(c.Title), esc(c.Category||""), esc(c.Grade||""), statusBadge(c.Status)]; },
-          function(c){ return '<button class="btn btn-primary btn-sm" onclick="_editCourse(\''+esc(c.ID)+'\')" style="mr:3px">Edit</button> <button class="btn btn-danger btn-sm" onclick="_delCourse(\''+esc(c.ID)+'\')" >Delete</button>'; }
-        )+'</div></div>' +
-        '<div class="card"><div class="card-body">' +
-        '<div class="flex-between mb-2"><h3>✍️ Blog Posts</h3><button class="btn btn-primary btn-sm" onclick="route(\'staff-blog-form\',{post:null})">+ Add Post</button></div>' +
-        buildAdminTable(posts,
-          ["Title","Status","Date"],
-          function(p){ return [esc(p.Title), statusBadge(p.Status), esc(fmtDate(p.CreatedDate))]; },
-          function(p){ return '<button class="btn btn-primary btn-sm" onclick="_editPost(\''+esc(p.ID)+'\')" >Edit</button> <button class="btn btn-danger btn-sm" onclick="_delPost(\''+esc(p.ID)+'\')" >Delete</button>'; }
-        )+'</div></div>';
+      api("allReferences", {}, function(refs) {
+        document.getElementById("staff-tables").innerHTML =
+          '<div class="card"><div class="card-body">' +
+          '<div class="flex-between mb-2"><h3>📚 Courses</h3><button class="btn btn-primary btn-sm" onclick="route(\'staff-course-form\',{course:null})">+ Add Course</button></div>' +
+          buildAdminTable(courses,
+            ["Title","Category","Grade","Status"],
+            function(c){ return [esc(c.Title), esc(c.Category||""), esc(c.Grade||""), statusBadge(c.Status)]; },
+            function(c){ return '<button class="btn btn-primary btn-sm" onclick="_editCourse(\''+esc(c.ID)+'\')">Edit</button> <button class="btn btn-danger btn-sm" onclick="_delCourse(\''+esc(c.ID)+'\')">Delete</button>'; }
+          )+'</div></div>' +
+          '<div class="card"><div class="card-body">' +
+          '<div class="flex-between mb-2"><h3>✍️ Blog Posts</h3><button class="btn btn-primary btn-sm" onclick="route(\'staff-blog-form\',{post:null})">+ Add Post</button></div>' +
+          buildAdminTable(posts,
+            ["Title","Status","Date"],
+            function(p){ return [esc(p.Title), statusBadge(p.Status), esc(fmtDate(p.CreatedDate))]; },
+            function(p){ return '<button class="btn btn-primary btn-sm" onclick="_editPost(\''+esc(p.ID)+'\')">Edit</button> <button class="btn btn-danger btn-sm" onclick="_delPost(\''+esc(p.ID)+'\')">Delete</button>'; }
+          )+'</div></div>' +
+          '<div class="card"><div class="card-body">' +
+          '<div class="flex-between mb-2"><h3>📎 References</h3><button class="btn btn-primary btn-sm" onclick="route(\'staff-reference-form\',{ref:null})">+ Add Reference</button></div>' +
+          buildAdminTable(refs,
+            ["Title","Category","Status"],
+            function(r){ return [esc(r.Title), esc(r.Category||""), statusBadge(r.Status)]; },
+            function(r){ return '<button class="btn btn-primary btn-sm" onclick="_editReference(\''+esc(r.ID)+'\')">Edit</button> <button class="btn btn-danger btn-sm" onclick="_delReference(\''+esc(r.ID)+'\')">Delete</button>'; }
+          )+'</div></div>';
+      });
     });
   });
 
