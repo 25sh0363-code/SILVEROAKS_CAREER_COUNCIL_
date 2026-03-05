@@ -29,14 +29,17 @@ function doGet(e) {
   try {
     switch (p.action) {
       case "home":       out = withUser(p, function(u){ return getHomeData(u); });       break;
-      case "courses":    out = withUser(p, function(u){ return getCourses(p, u); });     break;
-      case "course":     out = withUser(p, function(u){ return getCourse(p.id, u); });   break;
-      case "posts":      out = withUser(p, function(u){ return getPosts(p, u); });       break;
-      case "post":       out = withUser(p, function(u){ return getPost(p.id, u); });     break;
-      case "search":     out = withUser(p, function(u){ return search(p.q, u); });       break;
-      case "stats":      out = withAdmin(p, function(u){ return getStats(u); });         break;
-      case "allCourses": out = withAdmin(p, function(u){ return Courses.listAll(); });        break;
-      case "allPosts":   out = withAdmin(p, function(u){ return Blogs.listAll(); });          break;
+      case "courses":       out = withUser(p, function(u){ return getCourses(p, u); });        break;
+      case "course":        out = withUser(p, function(u){ return getCourse(p.id, u); });      break;
+      case "posts":         out = withUser(p, function(u){ return getPosts(p, u); });          break;
+      case "post":          out = withUser(p, function(u){ return getPost(p.id, u); });        break;
+      case "references":    out = withUser(p, function(u){ return getReferences(p, u); });     break;
+      case "reference":     out = withUser(p, function(u){ return getReference(p.id, u); });   break;
+      case "search":        out = withUser(p, function(u){ return search(p.q, u); });          break;
+      case "stats":         out = withAdmin(p, function(u){ return getStats(u); });            break;
+      case "allCourses":    out = withAdmin(p, function(u){ return Courses.listAll(); });       break;
+      case "allPosts":      out = withAdmin(p, function(u){ return Blogs.listAll(); });         break;
+      case "allReferences": out = withAdmin(p, function(u){ return References.listAll(); });    break;
       case "allUsers":   out = withAdmin(p, function(u){ return DB.getAllUsers(); });          break;
       case "me":         out = withUser(p, function(u){ return u; });                          break;
       case "ping":       out = {ok: true, name: CONFIG.APP_NAME};                        break;
@@ -59,10 +62,12 @@ function doPost(e) {
     var body = JSON.parse(e.postData.contents);
     var p    = body;
     switch (body.action) {
-      case "saveCourse":     out = withAdmin(p, function(u){ return saveCourse(body.data, u); });      break;
-      case "deleteCourse":   out = withAdmin(p, function(u){ return deleteCourse(body.id, u); });      break;
-      case "savePost":       out = withAdmin(p, function(u){ return savePost(body.data, u); });        break;
-      case "deletePost":     out = withAdmin(p, function(u){ return deletePost(body.id, u); });        break;
+      case "saveCourse":       out = withAdmin(p, function(u){ return saveCourse(body.data, u); });       break;
+      case "deleteCourse":     out = withAdmin(p, function(u){ return deleteCourse(body.id, u); });       break;
+      case "savePost":         out = withAdmin(p, function(u){ return savePost(body.data, u); });         break;
+      case "deletePost":       out = withAdmin(p, function(u){ return deletePost(body.id, u); });         break;
+      case "saveReference":    out = withAdmin(p, function(u){ return saveReference(body.data, u); });    break;
+      case "deleteReference":  out = withAdmin(p, function(u){ return deleteReference(body.id, u); });    break;
       case "updateUserRole": out = withAdmin(p, function(u){ return DB.updateUserRole(body.email, body.role); }); break;
       case "banUser":        out = withAdmin(p, function(u){ if (u.email === body.email) throw new Error("You cannot ban yourself."); return DB.setBanStatus(body.email, true); });  break;
       case "unbanUser":      out = withAdmin(p, function(u){ return DB.setBanStatus(body.email, false); }); break;
@@ -138,20 +143,55 @@ function getPost(id, user) {
 function getHomeData(user) {
   var courses = Courses.listPublished({ limit: 3, offset: 0 }).rows;
   courses.forEach(function(c) { c._embedUrl = Courses.youtubeEmbed(c.YouTubeURL); });
+  var refs = References.listPublished({ limit: 3, offset: 0 }).rows;
+  refs.forEach(function(r) { r._embedUrl = References.youtubeEmbed(r.YouTubeURL); });
   return {
-    featuredCourses: courses,
-    featuredPosts:   Blogs.listPublished({ limit: 3, offset: 0 }).rows,
-    categories:      Courses.getAllCategories(),
-    allGrades:       Courses.getAllGrades(),
-    allTags:         Blogs.getAllTags(),
+    featuredCourses:     courses,
+    featuredPosts:       Blogs.listPublished({ limit: 3, offset: 0 }).rows,
+    featuredReferences:  refs,
+    categories:          Courses.getAllCategories(),
+    refCategories:       References.getAllCategories(),
+    allGrades:           Courses.getAllGrades(),
+    allTags:             Blogs.getAllTags(),
   };
 }
 
 function search(query, user) {
   return {
-    courses: Courses.listPublished({ search: query, limit: 5, offset: 0 }).rows,
-    posts:   Blogs.listPublished({ search: query, limit: 5, offset: 0 }).rows,
+    courses:    Courses.listPublished({ search: query, limit: 5, offset: 0 }).rows,
+    posts:      Blogs.listPublished({ search: query, limit: 5, offset: 0 }).rows,
+    references: References.listPublished({ search: query, limit: 5, offset: 0 }).rows,
   };
+}
+
+function getReferences(p, user) {
+  var result = References.listPublished({
+    search:   p.search   || "",
+    category: p.category || "",
+    offset:   Number(p.offset) || 0,
+    limit:    Number(p.limit)  || CONFIG.PAGE_SIZE,
+  });
+  result.rows.forEach(function(r) {
+    r._embedUrl    = References.youtubeEmbed(r.YouTubeURL);
+    r._downloadUrl = References.driveDownload(r.PDFLink);
+  });
+  return result;
+}
+
+function getReference(id, user) {
+  var r = References.getById(id);
+  if (!r || r.Status !== "Published") throw new Error("Not found");
+  r._embedUrl    = References.youtubeEmbed(r.YouTubeURL);
+  r._downloadUrl = References.driveDownload(r.PDFLink);
+  return r;
+}
+
+function saveReference(data, user) {
+  return References.save(data);
+}
+
+function deleteReference(id, user) {
+  return References.remove(id);
 }
 
 function getStats(user) {

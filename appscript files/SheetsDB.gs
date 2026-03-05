@@ -154,49 +154,39 @@ var DB = (function () {
    * @returns {Object}
    */
   function getDashboardStats() {
-    var courses = getRows("Courses");
-    var blogs   = getRows("Blogs");
-    var users   = getRows("Users");
+    var courses    = getRows("Courses");
+    var blogs      = getRows("Blogs");
+    var users      = getRows("Users");
+    var references = getRows("References");
 
-    var publishedCourses = courses.filter(function (c) { return c.Status === "Published"; });
-    var publishedBlogs   = blogs.filter(function (b)   { return b.Status === "Published"; });
-    var activeUsers      = users.filter(function (u)   { return u.Status === "Active"; });
+    var publishedCourses    = courses.filter(function(c)    { return c.Status === "Published"; });
+    var publishedBlogs      = blogs.filter(function(b)      { return b.Status === "Published"; });
+    var publishedReferences = references.filter(function(r) { return r.Status === "Published"; });
+    var activeUsers         = users.filter(function(u)      { return u.Status === "Active"; });
 
-    // Recent activity — combine courses and blogs, sort by CreatedDate descending
     var recent = [];
-    courses.forEach(function (c) {
-      recent.push({ type: "Course", id: c.ID, title: c.Title, status: c.Status, date: c.CreatedDate });
-    });
-    blogs.forEach(function (b) {
-      recent.push({ type: "Blog", id: b.ID, title: b.Title, status: b.Status, date: b.CreatedDate });
-    });
-    recent.sort(function (a, b) {
-      return new Date(b.date) - new Date(a.date);
-    });
+    courses.forEach(function(c)    { recent.push({ type:"Course",    id:c.ID, title:c.Title, status:c.Status, date:c.CreatedDate }); });
+    blogs.forEach(function(b)      { recent.push({ type:"Blog",      id:b.ID, title:b.Title, status:b.Status, date:b.CreatedDate }); });
+    references.forEach(function(r) { recent.push({ type:"Reference", id:r.ID, title:r.Title, status:r.Status, date:r.CreatedDate }); });
+    recent.sort(function(a, b) { return new Date(b.date) - new Date(a.date); });
 
-    // Category breakdown for charts
     var catMap = {};
-    courses.forEach(function (c) {
-      var cat = c.Category || "Uncategorized";
-      catMap[cat] = (catMap[cat] || 0) + 1;
-    });
+    courses.forEach(function(c) { var cat = c.Category||"Uncategorized"; catMap[cat] = (catMap[cat]||0)+1; });
 
-    // Grade breakdown
     var gradeMap = {};
-    courses.forEach(function (c) {
-      var g = c.Grade || "Unassigned";
-      gradeMap[g] = (gradeMap[g] || 0) + 1;
-    });
+    courses.forEach(function(c) { var g = c.Grade||"Unassigned"; gradeMap[g] = (gradeMap[g]||0)+1; });
 
     return {
-      totalCourses:     courses.length,
-      totalBlogs:       blogs.length,
-      publishedCourses: publishedCourses.length,
-      publishedBlogs:   publishedBlogs.length,
-      activeUsers:      activeUsers.length,
-      recentActivity:   recent.slice(0, 10),
-      categoryData:     catMap,
-      gradeData:        gradeMap,
+      totalCourses:        courses.length,
+      totalBlogs:          blogs.length,
+      totalReferences:     references.length,
+      publishedCourses:    publishedCourses.length,
+      publishedBlogs:      publishedBlogs.length,
+      publishedReferences: publishedReferences.length,
+      activeUsers:         activeUsers.length,
+      recentActivity:      recent.slice(0, 10),
+      categoryData:        catMap,
+      gradeData:           gradeMap,
     };
   }
 
@@ -266,6 +256,26 @@ var DB = (function () {
             "https://via.placeholder.com/800x300?text=Blog",
             "staff1@hyd.silveroaks.co.in",
             "interview,career,tips",
+            "Published",
+            new Date().toISOString(),
+            new Date().toISOString(),
+          ],
+        ],
+      },
+      {
+        name: "References",
+        headers: ["ID","Title","Description","Author","Category","ThumbnailURL","YouTubeURL","PDFLink","Content","Status","CreatedDate","UpdatedDate"],
+        sample: [
+          [
+            Utilities.getUuid(),
+            "Career Pathways Overview",
+            "A comprehensive overview of career options available after school.",
+            "Career Council Team",
+            "General",
+            "https://via.placeholder.com/400x200?text=Reference",
+            "",
+            "",
+            "<p>Explore various career paths and how to prepare for them.</p>",
             "Published",
             new Date().toISOString(),
             new Date().toISOString(),
