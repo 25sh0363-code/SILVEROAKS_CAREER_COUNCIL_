@@ -129,6 +129,9 @@ var Blogs = (function () {
     if (!p.status || !["Draft","Published"].includes(p.status)) {
       throw new Error("Status must be Draft or Published.");
     }
+    if (p.pdfLink && !/^https:\/\/(drive|docs)\.google\.com\//i.test(p.pdfLink)) {
+      throw new Error("PDF link must be a Google Drive URL.");
+    }
     // Sanitize plain text fields only (content is rich HTML, sanitize carefully)
     p.title = _escapeHtml(p.title);
     p.tags  = _escapeHtml(p.tags || "");
@@ -140,6 +143,7 @@ var Blogs = (function () {
       p.title,
       p.content        || "",
       p.featuredImageUrl|| "",
+      p.pdfLink        || "",
       authorEmail      || "",
       p.tags           || "",
       p.status,
@@ -157,6 +161,15 @@ var Blogs = (function () {
       .replace(/'/g,  "&#039;");
   }
 
+  function driveDownload(url) {
+    if (!url) return "";
+    var m = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+    if (m) return "https://drive.google.com/uc?export=download&id=" + m[1];
+    m = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+    if (m) return "https://drive.google.com/uc?export=download&id=" + m[1];
+    return url;
+  }
+
   return {
     listPublished: listPublished,
     listAll:       listAll,
@@ -164,6 +177,7 @@ var Blogs = (function () {
     getAllTags:     getAllTags,
     save:          save,
     remove:        remove,
+    driveDownload: driveDownload,
   };
 
 })();

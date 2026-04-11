@@ -35,11 +35,14 @@ function doGet(e) {
       case "post":          out = withUser(p, function(u){ return getPost(p.id, u); });        break;
       case "references":    out = withUser(p, function(u){ return getReferences(p, u); });     break;
       case "reference":     out = withUser(p, function(u){ return getReference(p.id, u); });   break;
+      case "careerLabs":    out = withUser(p, function(u){ return getCareerLabs(p, u); });     break;
+      case "careerLab":     out = withUser(p, function(u){ return getCareerLab(p.id, u); });   break;
       case "search":        out = withUser(p, function(u){ return search(p.q, u); });          break;
       case "stats":         out = withAdmin(p, function(u){ return getStats(u); });            break;
       case "allCourses":    out = withAdmin(p, function(u){ return Courses.listAll(); });       break;
       case "allPosts":      out = withAdmin(p, function(u){ return Blogs.listAll(); });         break;
       case "allReferences": out = withAdmin(p, function(u){ return References.listAll(); });    break;
+      case "allCareerLabs": out = withAdmin(p, function(u){ return CareerLabs.listAll(); });    break;
       case "allUsers":   out = withAdmin(p, function(u){ return DB.getAllUsers(); });          break;
       case "me":         out = withUser(p, function(u){ return u; });                          break;
       case "ping":       out = {ok: true, name: CONFIG.APP_NAME};                        break;
@@ -68,10 +71,13 @@ function doPost(e) {
       case "deletePost":       out = withAdmin(p, function(u){ return deletePost(body.id, u); });         break;
       case "saveReference":    out = withAdmin(p, function(u){ return saveReference(body.data, u); });    break;
       case "deleteReference":  out = withAdmin(p, function(u){ return deleteReference(body.id, u); });    break;
+      case "saveCareerLab":    out = withAdmin(p, function(u){ return saveCareerLab(body.data, u); });    break;
+      case "deleteCareerLab":  out = withAdmin(p, function(u){ return deleteCareerLab(body.id, u); });    break;
       case "updateUserRole": out = withAdmin(p, function(u){ return DB.updateUserRole(body.email, body.role); }); break;
       case "banUser":        out = withAdmin(p, function(u){ if (u.email === body.email) throw new Error("You cannot ban yourself."); return DB.setBanStatus(body.email, true); });  break;
       case "unbanUser":      out = withAdmin(p, function(u){ return DB.setBanStatus(body.email, false); }); break;
-      case "uploadImage":    out = withAdmin(p, function(u){ return uploadImageToDrive(body.filename, body.mimeType, body.data); }); break;
+      case "uploadImage":    out = withAdmin(p, function(u){ return uploadFileToDrive(body.filename, body.mimeType, body.data); }); break;
+      case "uploadFile":     out = withAdmin(p, function(u){ return uploadFileToDrive(body.filename, body.mimeType, body.data); }); break;
       case "setup":          out = setupSheets();                                                       break;
       default:             out = {error: "Unknown action"};
     }
@@ -137,6 +143,7 @@ function getPosts(p, user) {
 function getPost(id, user) {
   var post = Blogs.getById(id);
   if (!post || post.Status !== "Published") throw new Error("Not found");
+  post._downloadUrl = Blogs.driveDownload(post.PDFLink);
   return post;
 }
 
@@ -145,12 +152,16 @@ function getHomeData(user) {
   courses.forEach(function(c) { c._embedUrl = Courses.youtubeEmbed(c.YouTubeURL); });
   var refs = References.listPublished({ limit: 3, offset: 0 }).rows;
   refs.forEach(function(r) { r._embedUrl = References.youtubeEmbed(r.YouTubeURL); });
+  var labs = CareerLabs.listPublished({ limit: 3, offset: 0 }).rows;
+  labs.forEach(function(l) { l._embedUrl = CareerLabs.youtubeEmbed(l.YouTubeURL); });
   return {
     featuredCourses:     courses,
     featuredPosts:       Blogs.listPublished({ limit: 3, offset: 0 }).rows,
     featuredReferences:  refs,
+    featuredCareerLabs:  labs,
     categories:          Courses.getAllCategories(),
     refCategories:       References.getAllCategories(),
+    labCategories:       CareerLabs.getAllCategories(),
     allGrades:           Courses.getAllGrades(),
     allTags:             Blogs.getAllTags(),
   };
@@ -161,6 +172,7 @@ function search(query, user) {
     courses:    Courses.listPublished({ search: query, limit: 5, offset: 0 }).rows,
     posts:      Blogs.listPublished({ search: query, limit: 5, offset: 0 }).rows,
     references: References.listPublished({ search: query, limit: 5, offset: 0 }).rows,
+    careerLabs: CareerLabs.listPublished({ search: query, limit: 5, offset: 0 }).rows,
   };
 }
 
@@ -186,12 +198,43 @@ function getReference(id, user) {
   return r;
 }
 
+function getCareerLabs(p, user) {
+  var result = CareerLabs.listPublished({
+    search:   p.search   || "",
+    category: p.category || "",
+    student:  p.student  || "",
+    offset:   Number(p.offset) || 0,
+    limit:    Number(p.limit)  || CONFIG.PAGE_SIZE,
+  });
+  result.rows.forEach(function(l) {
+    l._embedUrl    = CareerLabs.youtubeEmbed(l.YouTubeURL);
+    l._downloadUrl = CareerLabs.driveDownload(l.PDFLink);
+  });
+  return result;
+}
+
+function getCareerLab(id, user) {
+  var lab = CareerLabs.getById(id);
+  if (!lab || lab.Status !== "Published") throw new Error("Not found");
+  lab._embedUrl    = CareerLabs.youtubeEmbed(lab.YouTubeURL);
+  lab._downloadUrl = CareerLabs.driveDownload(lab.PDFLink);
+  return lab;
+}
+
 function saveReference(data, user) {
   return References.save(data);
 }
 
 function deleteReference(id, user) {
   return References.remove(id);
+}
+
+function saveCareerLab(data, user) {
+  return CareerLabs.save(data);
+}
+
+function deleteCareerLab(id, user) {
+  return CareerLabs.remove(id);
 }
 
 function getStats(user) {
@@ -220,14 +263,14 @@ function setupSheets() {
 }
 
 /**
- * Uploads a base64-encoded image to a dedicated Google Drive folder
- * and returns a publicly accessible direct image URL.
+ * Uploads a base64-encoded file to a dedicated Google Drive folder
+ * and returns a publicly accessible direct file URL.
  */
-function uploadImageToDrive(filename, mimeType, base64Data) {
+function uploadFileToDrive(filename, mimeType, base64Data) {
   if (!filename || !mimeType || !base64Data) throw new Error("Missing image data.");
 
-  // Find or create a folder called "CareerLab Thumbnails" in Drive root
-  var folderName = "CareerLab Thumbnails";
+  // Find or create a folder called "CareerLab Uploads" in Drive root
+  var folderName = "CareerLab Uploads";
   var folders = DriveApp.getFoldersByName(folderName);
   var folder   = folders.hasNext() ? folders.next() : DriveApp.createFolder(folderName);
 
@@ -240,7 +283,7 @@ function uploadImageToDrive(filename, mimeType, base64Data) {
   // Make it publicly viewable (anyone with link)
   file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
 
-  // Return direct image URL
+  // Return direct file URL
   var fileId = file.getId();
   return { ok: true, url: "https://drive.google.com/uc?export=view&id=" + fileId };
 }

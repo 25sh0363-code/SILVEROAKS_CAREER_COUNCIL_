@@ -1,7 +1,7 @@
 /**
  * SheetsDB.gs — Google Sheets database layer.
  * Handles all reads and writes to the spreadsheet.
- * Sheet names: Users, Courses, Blogs
+ * Sheet names: Users, Courses, Blogs, References, CareerLabs
  */
 
 var DB = (function () {
@@ -158,16 +158,19 @@ var DB = (function () {
     var blogs      = getRows("Blogs");
     var users      = getRows("Users");
     var references = getRows("References");
+    var careerLabs = getRows("CareerLabs");
 
     var publishedCourses    = courses.filter(function(c)    { return c.Status === "Published"; });
     var publishedBlogs      = blogs.filter(function(b)      { return b.Status === "Published"; });
     var publishedReferences = references.filter(function(r) { return r.Status === "Published"; });
+    var publishedCareerLabs = careerLabs.filter(function(l) { return l.Status === "Published"; });
     var activeUsers         = users.filter(function(u)      { return u.Status === "Active"; });
 
     var recent = [];
     courses.forEach(function(c)    { recent.push({ type:"Course",    id:c.ID, title:c.Title, status:c.Status, date:c.CreatedDate }); });
     blogs.forEach(function(b)      { recent.push({ type:"Blog",      id:b.ID, title:b.Title, status:b.Status, date:b.CreatedDate }); });
     references.forEach(function(r) { recent.push({ type:"Reference", id:r.ID, title:r.Title, status:r.Status, date:r.CreatedDate }); });
+    careerLabs.forEach(function(l) { recent.push({ type:"Career Lab", id:l.ID, title:l.Title, status:l.Status, date:l.CreatedDate }); });
     recent.sort(function(a, b) { return new Date(b.date) - new Date(a.date); });
 
     var catMap = {};
@@ -180,9 +183,11 @@ var DB = (function () {
       totalCourses:        courses.length,
       totalBlogs:          blogs.length,
       totalReferences:     references.length,
+      totalCareerLabs:     careerLabs.length,
       publishedCourses:    publishedCourses.length,
       publishedBlogs:      publishedBlogs.length,
       publishedReferences: publishedReferences.length,
+      publishedCareerLabs: publishedCareerLabs.length,
       activeUsers:         activeUsers.length,
       recentActivity:      recent.slice(0, 10),
       categoryData:        catMap,
@@ -247,13 +252,14 @@ var DB = (function () {
       },
       {
         name: "Blogs",
-        headers: ["ID","Title","Content","FeaturedImageURL","AuthorEmail","Tags","Status","CreatedDate","UpdatedDate"],
+        headers: ["ID","Title","Content","FeaturedImageURL","PDFLink","AuthorEmail","Tags","Status","CreatedDate","UpdatedDate"],
         sample: [
           [
             Utilities.getUuid(),
             "Top 10 Interview Tips",
             "<p>Preparing for an interview can be stressful. Here are our top 10 tips...</p>",
             "https://via.placeholder.com/800x300?text=Blog",
+            "",
             "staff1@hyd.silveroaks.co.in",
             "interview,career,tips",
             "Published",
@@ -282,25 +288,79 @@ var DB = (function () {
           ],
         ],
       },
+      {
+        name: "CareerLabs",
+        headers: ["ID","Title","Student","Description","Mentor","Category","ThumbnailURL","YouTubeURL","PDFLink","Content","Status","CreatedDate","UpdatedDate"],
+        sample: [
+          [
+            Utilities.getUuid(),
+            "Career Research Snapshot",
+            "Sample Student",
+            "A sample student career research entry with video and notes.",
+            "Career Council Team",
+            "Research",
+            "https://via.placeholder.com/400x200?text=Career+Lab",
+            "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+            "",
+            "<p>Use this section to store private career guidance, research notes, and uploadable PDFs.</p>",
+            "Published",
+            new Date().toISOString(),
+            new Date().toISOString(),
+          ],
+        ],
+      },
     ];
 
     defs.forEach(function (def) {
       var s = ss.getSheetByName(def.name);
       if (!s) {
         s = ss.insertSheet(def.name);
-        var header = s.getRange(1, 1, 1, def.headers.length);
-        header.setValues([def.headers]);
-        header.setFontWeight("bold");
-        header.setBackground("#1e3a5f");
-        header.setFontColor("#ffffff");
+        _applyHeaderRow(s, def.headers);
         def.sample.forEach(function (row) { s.appendRow(row); });
         Logger.log("Created sheet: " + def.name);
       } else {
-        Logger.log("Sheet already exists: " + def.name + " — skipped.");
+        _ensureHeaders(s, def.headers);
+        Logger.log("Sheet already exists: " + def.name + " — checked headers.");
       }
     });
 
     Logger.log("Setup complete.");
+  }
+
+  function _applyHeaderRow(sheet, headers) {
+    var header = sheet.getRange(1, 1, 1, headers.length);
+    header.setValues([headers]);
+    header.setFontWeight("bold");
+    header.setBackground("#1e3a5f");
+    header.setFontColor("#ffffff");
+  }
+
+  function _ensureHeaders(sheet, headers) {
+    var data = sheet.getDataRange().getValues();
+    if (!data.length) {
+      _applyHeaderRow(sheet, headers);
+      return;
+    }
+
+    var current = data[0] || [];
+    var same = current.length === headers.length && headers.every(function(h, i) { return current[i] === h; });
+    if (same) return;
+
+    var indexMap = {};
+    current.forEach(function(name, idx) { indexMap[name] = idx; });
+    var rebuilt = [headers];
+    for (var row = 1; row < data.length; row++) {
+      var source = data[row];
+      var next = headers.map(function(name) {
+        var idx = indexMap[name];
+        return idx === undefined ? "" : source[idx];
+      });
+      rebuilt.push(next);
+    }
+
+    sheet.clearContents();
+    sheet.getRange(1, 1, rebuilt.length, headers.length).setValues(rebuilt);
+    _applyHeaderRow(sheet, headers);
   }
 
   // ── Public API ────────────────────────────────────────────────────────────
