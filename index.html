@@ -840,22 +840,7 @@ function pageCourses(opts) {
 
   initAC("c-srch", "c-ac");
 
-  Promise.all([
-    apiAsync("courses", { search: _cState.q, category: _cState.category, grade: _cState.grade, offset: _cState.offset, limit: PAGE_SIZE }),
-    apiAsync("home", {})
-  ]).then(function(results) {
-    var result = results[0];
-    var meta   = results[1];
-
-    var sel = document.getElementById("c-cat");
-    if (sel && meta.categories) {
-      meta.categories.forEach(function(cat) {
-        var opt = document.createElement("option");
-        opt.value = cat; opt.textContent = cat;
-        if (_cState.category === cat) opt.selected = true;
-        sel.appendChild(opt);
-      });
-    }
+  apiAsync("courses", { search: _cState.q, category: _cState.category, grade: _cState.grade, offset: _cState.offset, limit: PAGE_SIZE }).then(function(result) {
 
     var grid = document.getElementById("c-grid");
     var cnt  = document.getElementById("c-count");
@@ -867,6 +852,17 @@ function pageCourses(opts) {
       : '<div class="empty" style="grid-column:1/-1"><div class="empty-icon">📭</div><p>No courses found. <a href="#" onclick="clearCourseFilter()">Reset</a></p></div>';
 
     renderPagination("c-pages", result.total, _cState.offset, function(off) { _cState.offset = off; pageCourses(); });
+    apiAsync("home", {}).then(function(meta) {
+      var sel = document.getElementById("c-cat");
+      if (sel && meta.categories) {
+        meta.categories.forEach(function(cat) {
+          var opt = document.createElement("option");
+          opt.value = cat; opt.textContent = cat;
+          if (_cState.category === cat) opt.selected = true;
+          sel.appendChild(opt);
+        });
+      }
+    }).catch(function(){});
   }).catch(defaultErr);
 }
 
@@ -953,21 +949,7 @@ function pageBlog(opts) {
 
   initAC("b-srch", "b-ac");
 
-  Promise.all([
-    apiAsync("posts", { search: _bState.q, tag: _bState.tag, offset: _bState.offset, limit: PAGE_SIZE }),
-    apiAsync("home", {})
-  ]).then(function(results) {
-    var result = results[0];
-    var meta   = results[1];
-
-    var bar = document.getElementById("b-tags");
-    if (bar && meta.allTags && meta.allTags.length) {
-      bar.innerHTML = '<span style="font-size:.82rem;color:var(--muted)">Filter:</span>' +
-        '<a class="tag-pill'+(!_bState.tag?" active":"")+'" href="#" onclick="event.preventDefault();setBlogTag(\'\')">All</a>' +
-        meta.allTags.map(function(t) {
-          return '<a class="tag-pill'+(_bState.tag===t?" active":"")+'" href="#" onclick="event.preventDefault();setBlogTag(\''+esc(t)+'\')">'+esc(t)+'</a>';
-        }).join("");
-    }
+  apiAsync("posts", { search: _bState.q, tag: _bState.tag, offset: _bState.offset, limit: PAGE_SIZE }).then(function(result) {
 
     var grid = document.getElementById("b-grid");
     var cnt  = document.getElementById("b-count");
@@ -978,6 +960,16 @@ function pageBlog(opts) {
       : '<div class="empty" style="grid-column:1/-1"><div class="empty-icon">📭</div><p>No posts found. <a href="#" onclick="clearBlogFilter()">Reset</a></p></div>';
 
     renderPagination("b-pages", result.total, _bState.offset, function(off) { _bState.offset = off; pageBlog(); });
+    apiAsync("home", {}).then(function(meta) {
+      var bar = document.getElementById("b-tags");
+      if (bar && meta.allTags && meta.allTags.length) {
+        bar.innerHTML = '<span style="font-size:.82rem;color:var(--muted)">Filter:</span>' +
+          '<a class="tag-pill'+(!_bState.tag?" active":"")+'" href="#" onclick="event.preventDefault();setBlogTag(\'\')">All</a>' +
+          meta.allTags.map(function(t) {
+            return '<a class="tag-pill'+(_bState.tag===t?" active":"")+'" href="#" onclick="event.preventDefault();setBlogTag(\''+esc(t)+'\')">'+esc(t)+'</a>';
+          }).join("");
+      }
+    }).catch(function(){});
   }).catch(defaultErr);
 }
 
@@ -1051,22 +1043,7 @@ function pageReferences(opts) {
 
   initAC("r-srch", "r-ac");
 
-  Promise.all([
-    apiAsync("references", { search: _rState.q, category: _rState.category, offset: _rState.offset, limit: PAGE_SIZE }),
-    apiAsync("home", {})
-  ]).then(function(results) {
-    var result = results[0];
-    var meta   = results[1];
-
-    var sel = document.getElementById("r-cat");
-    if (sel && meta.refCategories) {
-      meta.refCategories.forEach(function(cat) {
-        var opt = document.createElement("option");
-        opt.value = cat; opt.textContent = cat;
-        if (_rState.category === cat) opt.selected = true;
-        sel.appendChild(opt);
-      });
-    }
+  apiAsync("references", { search: _rState.q, category: _rState.category, offset: _rState.offset, limit: PAGE_SIZE }).then(function(result) {
 
     var grid = document.getElementById("r-grid");
     var cnt  = document.getElementById("r-count");
@@ -1078,6 +1055,17 @@ function pageReferences(opts) {
       : '<div class="empty" style="grid-column:1/-1"><div class="empty-icon">📭</div><p>No references found. <a href="#" onclick="clearRefFilter()">Reset</a></p></div>';
 
     renderPagination("r-pages", result.total, _rState.offset, function(off) { _rState.offset = off; pageReferences(); });
+    apiAsync("home", {}).then(function(meta) {
+      var sel = document.getElementById("r-cat");
+      if (sel && meta.refCategories) {
+        meta.refCategories.forEach(function(cat) {
+          var opt = document.createElement("option");
+          opt.value = cat; opt.textContent = cat;
+          if (_rState.category === cat) opt.selected = true;
+          sel.appendChild(opt);
+        });
+      }
+    }).catch(function(){});
   }).catch(defaultErr);
 }
 
@@ -1160,22 +1148,7 @@ function pageCareerLabs(opts) {
 
   initAC("l-srch", "l-ac");
 
-  Promise.all([
-    apiAsync("careerLabs", { search: _lState.q, category: _lState.category, student: _lState.student, offset: _lState.offset, limit: PAGE_SIZE }),
-    apiAsync("home", {})
-  ]).then(function(results) {
-    var result = results[0];
-    var meta   = results[1];
-
-    var sel = document.getElementById("l-cat");
-    if (sel && meta.labCategories) {
-      meta.labCategories.forEach(function(cat) {
-        var opt = document.createElement("option");
-        opt.value = cat; opt.textContent = cat;
-        if (_lState.category === cat) opt.selected = true;
-        sel.appendChild(opt);
-      });
-    }
+  apiAsync("careerLabs", { search: _lState.q, category: _lState.category, student: _lState.student, offset: _lState.offset, limit: PAGE_SIZE }).then(function(result) {
 
     var grid = document.getElementById("l-grid");
     var cnt  = document.getElementById("l-count");
@@ -1187,6 +1160,17 @@ function pageCareerLabs(opts) {
       : '<div class="empty" style="grid-column:1/-1"><div class="empty-icon">📭</div><p>No career labs found. <a href="#" onclick="clearLabFilter()">Reset</a></p></div>';
 
     renderPagination("l-pages", result.total, _lState.offset, function(off) { _lState.offset = off; pageCareerLabs(); });
+    apiAsync("home", {}).then(function(meta) {
+      var sel = document.getElementById("l-cat");
+      if (sel && meta.labCategories) {
+        meta.labCategories.forEach(function(cat) {
+          var opt = document.createElement("option");
+          opt.value = cat; opt.textContent = cat;
+          if (_lState.category === cat) opt.selected = true;
+          sel.appendChild(opt);
+        });
+      }
+    }).catch(function(){});
   }).catch(defaultErr);
 }
 

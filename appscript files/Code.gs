@@ -42,7 +42,7 @@ function doGet(e) {
       case "allCourses":    out = withAdmin(p, function(u){ return Courses.listAll(); });       break;
       case "allPosts":      out = withAdmin(p, function(u){ return Blogs.listAll(); });         break;
       case "allReferences": out = withAdmin(p, function(u){ return References.listAll(); });    break;
-      case "allCareerLabs": out = withAdmin(p, function(u){ return CareerLabs.listAll(); });    break;
+      case "allCareerLabs": out = withAdmin(p, function(u){ return _safeCareerLabsListAll(); });    break;
       case "allUsers":   out = withAdmin(p, function(u){ return DB.getAllUsers(); });          break;
       case "me":         out = withUser(p, function(u){ return u; });                          break;
       case "ping":       out = {ok: true, name: CONFIG.APP_NAME};                        break;
@@ -152,7 +152,7 @@ function getHomeData(user) {
   courses.forEach(function(c) { c._embedUrl = Courses.youtubeEmbed(c.YouTubeURL); });
   var refs = References.listPublished({ limit: 3, offset: 0 }).rows;
   refs.forEach(function(r) { r._embedUrl = References.youtubeEmbed(r.YouTubeURL); });
-  var labs = CareerLabs.listPublished({ limit: 3, offset: 0 }).rows;
+  var labs = _safeCareerLabsListPublished({ limit: 3, offset: 0 }).rows;
   labs.forEach(function(l) { l._embedUrl = CareerLabs.youtubeEmbed(l.YouTubeURL); });
   return {
     featuredCourses:     courses,
@@ -161,7 +161,7 @@ function getHomeData(user) {
     featuredCareerLabs:  labs,
     categories:          Courses.getAllCategories(),
     refCategories:       References.getAllCategories(),
-    labCategories:       CareerLabs.getAllCategories(),
+    labCategories:       _safeCareerLabsCategories(),
     allGrades:           Courses.getAllGrades(),
     allTags:             Blogs.getAllTags(),
   };
@@ -172,7 +172,7 @@ function search(query, user) {
     courses:    Courses.listPublished({ search: query, limit: 5, offset: 0 }).rows,
     posts:      Blogs.listPublished({ search: query, limit: 5, offset: 0 }).rows,
     references: References.listPublished({ search: query, limit: 5, offset: 0 }).rows,
-    careerLabs: CareerLabs.listPublished({ search: query, limit: 5, offset: 0 }).rows,
+    careerLabs: _safeCareerLabsListPublished({ search: query, limit: 5, offset: 0 }).rows,
   };
 }
 
@@ -199,7 +199,7 @@ function getReference(id, user) {
 }
 
 function getCareerLabs(p, user) {
-  var result = CareerLabs.listPublished({
+  var result = _safeCareerLabsListPublished({
     search:   p.search   || "",
     category: p.category || "",
     student:  p.student  || "",
@@ -235,6 +235,38 @@ function saveCareerLab(data, user) {
 
 function deleteCareerLab(id, user) {
   return CareerLabs.remove(id);
+}
+
+function _safeCareerLabsListPublished(opts) {
+  try {
+    return CareerLabs.listPublished(opts || {});
+  } catch (e) {
+    if (_isMissingCareerLabsSheet(e)) return { total: 0, rows: [] };
+    throw e;
+  }
+}
+
+function _safeCareerLabsListAll() {
+  try {
+    return CareerLabs.listAll();
+  } catch (e) {
+    if (_isMissingCareerLabsSheet(e)) return [];
+    throw e;
+  }
+}
+
+function _safeCareerLabsCategories() {
+  try {
+    return CareerLabs.getAllCategories();
+  } catch (e) {
+    if (_isMissingCareerLabsSheet(e)) return [];
+    throw e;
+  }
+}
+
+function _isMissingCareerLabsSheet(err) {
+  var msg = err && err.message ? err.message : String(err || "");
+  return msg.indexOf("Sheet not found: CareerLabs") !== -1;
 }
 
 function getStats(user) {

@@ -6,6 +6,9 @@
 
 var Auth = (function () {
 
+  var TOKEN_CACHE_TTL_SECONDS = 600;
+  var USER_CACHE_TTL_SECONDS = 180;
+
   /**
    * Verifies a Google ID token (JWT) received from the frontend.
    * Uses Google's tokeninfo endpoint (HTTPS call).
@@ -17,18 +20,30 @@ var Auth = (function () {
   function verifyToken(idToken) {
     if (!idToken) throw new Error("Not authenticated. Please sign in.");
 
-    // Call Google's tokeninfo API to validate the JWT
-    var resp = UrlFetchApp.fetch(
-      "https://oauth2.googleapis.com/tokeninfo?id_token=" + encodeURIComponent(idToken),
-      { muteHttpExceptions: true }
-    );
+    var info = _readTokenInfoFromCache(idToken);
+    if (!info) {
+      // Call Google's tokeninfo API to validate the JWT (slow path)
+      var resp = UrlFetchApp.fetch(
+        "https://oauth2.googleapis.com/tokeninfo?id_token=" + encodeURIComponent(idToken),
+        { muteHttpExceptions: true }
+      );
 
-    if (resp.getResponseCode() !== 200) {
-      throw new Error("Invalid or expired sign-in token. Please sign in again.");
+      if (resp.getResponseCode() !== 200) {
+        throw new Error("Invalid or expired sign-in token. Please sign in again.");
+      }
+
+      info = JSON.parse(resp.getContentText());
+      _writeTokenInfoToCache(idToken, info);
     }
 
-    var info  = JSON.parse(resp.getContentText());
     var email = (info.email || "").toLowerCase();
+
+    // Optional audience check when CONFIG.CLIENT_ID is configured.
+    if (CONFIG.CLIENT_ID && CONFIG.CLIENT_ID !== "PUT_YOUR_OAUTH_CLIENT_ID") {
+      if (info.aud !== CONFIG.CLIENT_ID) {
+        throw new Error("Invalid sign-in audience. Please sign in again.");
+      }
+    }
 
     // Must have verified email
     if (!info.email_verified) throw new Error("Google account email is not verified.");
@@ -39,7 +54,8 @@ var Auth = (function () {
     }
 
     // Look up or auto-create the user row in Users sheet
-    var record = DB.getUserByEmail(email);
+    var record = _readUserFromCache(email);
+    if (!record) record = DB.getUserByEmail(email);
     if (!record) {
       // First-time login: create a Student record
       DB.appendRow("Users", [
@@ -51,6 +67,7 @@ var Auth = (function () {
       ]);
       record = { Name: info.name || "", Email: email, Role: "Student", Status: "Active" };
     }
+    _writeUserToCache(email, record);
 
     if (record.Status !== "Active") {
       throw new Error("Your account is not active. Contact an administrator.");
@@ -65,6 +82,55 @@ var Auth = (function () {
       role:    role,
       isAdmin: isAdmin,
     };
+  }
+
+  function _tokenCacheKey(idToken) {
+    var digest = Utilities.computeDigest(Utilities.DigestAlgorithm.MD5, idToken, Utilities.Charset.UTF_8);
+    return "tok:" + Utilities.base64EncodeWebSafe(digest);
+  }
+
+  function _readTokenInfoFromCache(idToken) {
+    var raw = CacheService.getScriptCache().get(_tokenCacheKey(idToken));
+    if (!raw) return null;
+    try {
+      return JSON.parse(raw);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function _writeTokenInfoToCache(idToken, info) {
+    var payload = {
+      email: info.email || "",
+      name: info.name || "",
+      email_verified: String(info.email_verified) === "true" || info.email_verified === true,
+      aud: info.aud || "",
+    };
+    CacheService.getScriptCache().put(_tokenCacheKey(idToken), JSON.stringify(payload), TOKEN_CACHE_TTL_SECONDS);
+  }
+
+  function _userCacheKey(email) {
+    return "usr:" + String(email || "").toLowerCase();
+  }
+
+  function _readUserFromCache(email) {
+    var raw = CacheService.getScriptCache().get(_userCacheKey(email));
+    if (!raw) return null;
+    try {
+      return JSON.parse(raw);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function _writeUserToCache(email, user) {
+    var payload = {
+      Name: user.Name || "",
+      Email: user.Email || email || "",
+      Role: user.Role || "Student",
+      Status: user.Status || "Active",
+    };
+    CacheService.getScriptCache().put(_userCacheKey(email), JSON.stringify(payload), USER_CACHE_TTL_SECONDS);
   }
 
   /**
