@@ -276,6 +276,7 @@ function verifyAndStart(token) {
     _idToken = token;
     showChrome();
     route("home");
+    prewarmData();
   }, function(err) {
     hideLoader();
     
@@ -287,6 +288,16 @@ function verifyAndStart(token) {
       google.accounts.id.prompt();
     }
   });
+}
+
+function prewarmData() {
+  Promise.all([
+    apiAsync("home", {}),
+    apiAsync("courses", { offset: 0, limit: PAGE_SIZE }),
+    apiAsync("posts", { offset: 0, limit: PAGE_SIZE }),
+    apiAsync("references", { offset: 0, limit: PAGE_SIZE }),
+    apiAsync("careerLabs", { offset: 0, limit: PAGE_SIZE })
+  ]).catch(function(){});
 }
 
 function showChrome() {
@@ -606,10 +617,11 @@ function statusBadge(s) {
 }
 
 function courseCard(c) {
+  var canOpen = !!c.ID;
   var thumb = c.ThumbnailURL
     ? '<img class="card-thumb" src="'+esc(c.ThumbnailURL)+'" alt="'+esc(c.Title)+'" onerror="this.parentElement.innerHTML=\'<div class=card-thumb-placeholder style=background:linear-gradient(135deg,#1e3a5f,#2d6a9f)>🎓</div>\'">'
     : '<div class="card-thumb-placeholder" style="background:linear-gradient(135deg,#1e3a5f,#2d6a9f)">🎓</div>';
-  return '<div class="card">' + thumb +
+  return '<div class="card"'+(canOpen?' style="cursor:pointer" onclick="route(\'course\',{id:\''+esc(c.ID)+'\'})"':'')+'>' + thumb +
     '<div class="card-body">' +
     '<div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:9px">' +
     '<span class="badge badge-primary">'+esc(c.Category||"General")+'</span>' +
@@ -621,15 +633,16 @@ function courseCard(c) {
     '<p class="card-desc">'+esc((c.Description||"").slice(0,110))+((c.Description||"").length>110?"…":"")+'</p>' +
     '<div class="card-footer">' +
     '<span class="card-meta">👨‍🏫 '+esc(c.Instructor||"Staff")+'</span>' +
-    '<button class="btn btn-primary btn-sm" onclick="route(\'course\',{id:\''+esc(c.ID)+'\'})">Open →</button>' +
+    '<button class="btn btn-primary btn-sm"'+(canOpen?' onclick="event.stopPropagation();route(\'course\',{id:\''+esc(c.ID)+'\'})"':' disabled')+'>'+(canOpen?'Open →':'Unavailable')+'</button>' +
     '</div></div></div>';
 }
 
 function referenceCard(r) {
+  var canOpen = !!r.ID;
   var thumb = r.ThumbnailURL
     ? '<img class="card-thumb" src="'+esc(r.ThumbnailURL)+'" alt="'+esc(r.Title)+'" onerror="this.parentElement.innerHTML=\'<div class=card-thumb-placeholder style=background:linear-gradient(135deg,#2d6a4f,#52b788)>📎</div>\'">' 
     : '<div class="card-thumb-placeholder" style="background:linear-gradient(135deg,#2d6a4f,#52b788)">📎</div>';
-  return '<div class="card">'+thumb+
+  return '<div class="card"'+(canOpen?' style="cursor:pointer" onclick="route(\'reference\',{id:\''+esc(r.ID)+'\'})"':'')+'>'+thumb+
     '<div class="card-body">'+
     '<div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:9px">'+
     '<span class="badge badge-primary">'+esc(r.Category||"General")+'</span>'+
@@ -640,15 +653,16 @@ function referenceCard(r) {
     '<p class="card-desc">'+esc((r.Description||"").slice(0,110))+((r.Description||"").length>110?"…":"")+'</p>'+
     '<div class="card-footer">'+
     '<span class="card-meta">✍️ '+esc(r.Author||"Staff")+'</span>'+
-    '<button class="btn btn-primary btn-sm" onclick="route(\'reference\',{id:\''+esc(r.ID)+'\'})">Open →</button>'+
+    '<button class="btn btn-primary btn-sm"'+(canOpen?' onclick="event.stopPropagation();route(\'reference\',{id:\''+esc(r.ID)+'\'})"':' disabled')+'>'+(canOpen?'Open →':'Unavailable')+'</button>'+
     '</div></div></div>';
 }
 
 function careerLabCard(l) {
+  var canOpen = !!l.ID;
   var thumb = l.ThumbnailURL
     ? '<img class="card-thumb" src="'+esc(l.ThumbnailURL)+'" alt="'+esc(l.Title)+'" onerror="this.parentElement.innerHTML=\'<div class=card-thumb-placeholder style=background:linear-gradient(135deg,#0f766e,#14b8a6)>🧠</div>\'">'
     : '<div class="card-thumb-placeholder" style="background:linear-gradient(135deg,#0f766e,#14b8a6)">🧠</div>';
-  return '<div class="card">'+thumb+
+  return '<div class="card"'+(canOpen?' style="cursor:pointer" onclick="route(\'career-lab-item\',{id:\''+esc(l.ID)+'\'})"':'')+'>'+thumb+
     '<div class="card-body">'+
     '<div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:9px">'+
     '<span class="badge badge-primary">'+esc(l.Category||"Research")+'</span>'+
@@ -660,17 +674,18 @@ function careerLabCard(l) {
     '<p class="card-desc">'+esc((l.Description||"").slice(0,110))+((l.Description||"").length>110?"…":"")+'</p>'+
     '<div class="card-footer">'+
     '<span class="card-meta">👤 '+esc(l.Mentor||"Staff")+'</span>'+
-    '<button class="btn btn-primary btn-sm" onclick="route(\'career-lab-item\',{id:\''+esc(l.ID)+'\'})">Open →</button>'+
+    '<button class="btn btn-primary btn-sm"'+(canOpen?' onclick="event.stopPropagation();route(\'career-lab-item\',{id:\''+esc(l.ID)+'\'})"':' disabled')+'>'+(canOpen?'Open →':'Unavailable')+'</button>'+
     '</div></div></div>';
 }
 
 function postCard(p) {
+  var canOpen = !!p.ID;
   var excerpt = stripHtml(p.Content||"").slice(0,115);
   var thumb   = p.FeaturedImageURL
     ? '<img class="card-thumb" src="'+esc(p.FeaturedImageURL)+'" alt="'+esc(p.Title)+'" onerror="this.parentElement.innerHTML=\'<div class=card-thumb-placeholder style=background:linear-gradient(135deg,#553c9a,#805ad5)>✍️</div>\'">'
     : '<div class="card-thumb-placeholder" style="background:linear-gradient(135deg,#553c9a,#805ad5)">✍️</div>';
   var tags = p.Tags ? p.Tags.split(",").map(function(t){ t=t.trim(); return t?'<a class="tag-pill" style="font-size:.7rem" href="#" onclick="event.preventDefault();setBlogTag(\''+esc(t)+'\')">'+esc(t)+'</a>':""}).join("") : "";
-  return '<div class="card">'+thumb+
+  return '<div class="card"'+(canOpen?' style="cursor:pointer" onclick="route(\'post\',{id:\''+esc(p.ID)+'\'})"':'')+'>'+thumb+
     '<div class="card-body">'+
     '<h3 class="card-title">'+esc(p.Title)+'</h3>'+
     '<p class="card-desc">'+esc(excerpt)+(excerpt.length>=115?"…":"")+'</p>'+
@@ -680,7 +695,7 @@ function postCard(p) {
     (tags?'<div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:10px">'+tags+'</div>':'')+
     '<div class="card-footer">'+
     '<span class="card-meta">📅 '+esc(fmtDate(p.CreatedDate))+'</span>'+
-    '<button class="btn btn-primary btn-sm" onclick="route(\'post\',{id:\''+esc(p.ID)+'\'})">Read →</button>'+
+    '<button class="btn btn-primary btn-sm"'+(canOpen?' onclick="event.stopPropagation();route(\'post\',{id:\''+esc(p.ID)+'\'})"':' disabled')+'>'+(canOpen?'Read →':'Unavailable')+'</button>'+
     '</div></div></div>';
 }
 
