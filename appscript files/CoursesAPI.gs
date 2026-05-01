@@ -34,7 +34,7 @@ var Courses = (function () {
    */
   function getById(id) {
     if (!id) return null;
-    return DB.getRows(SHEET).find(function (r) { return r.ID === id; }) || null;
+    return DB.getRowById(SHEET, id) || null;
   }
 
   /** Returns unique category list from all published courses. */

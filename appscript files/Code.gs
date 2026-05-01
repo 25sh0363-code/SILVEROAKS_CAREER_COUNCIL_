@@ -125,6 +125,11 @@ function getCourses(p, user) {
 
 function getCourse(id, user) {
   var c = Courses.getById(id);
+  // Fallback: if header/ID issues cause null, scan rows as a slower fallback
+  if (!c) {
+    var rows = DB.getRows("Courses");
+    c = rows.find(function(r){ return r.ID === id; }) || null;
+  }
   if (!c || c.Status !== "Published") throw new Error("Not found");
   c._embedUrl    = Courses.youtubeEmbed(c.YouTubeURL);
   c._downloadUrl = Courses.driveDownload(c.PDFLink);
@@ -142,6 +147,10 @@ function getPosts(p, user) {
 
 function getPost(id, user) {
   var post = Blogs.getById(id);
+  if (!post) {
+    var rows = DB.getRows("Blogs");
+    post = rows.find(function(r){ return r.ID === id; }) || null;
+  }
   if (!post || post.Status !== "Published") throw new Error("Not found");
   post._downloadUrl = Blogs.driveDownload(post.PDFLink);
   return post;
@@ -192,6 +201,10 @@ function getReferences(p, user) {
 
 function getReference(id, user) {
   var r = References.getById(id);
+  if (!r) {
+    var rows = DB.getRows("References");
+    r = rows.find(function(row){ return row.ID === id; }) || null;
+  }
   if (!r || r.Status !== "Published") throw new Error("Not found");
   r._embedUrl    = References.youtubeEmbed(r.YouTubeURL);
   r._downloadUrl = References.driveDownload(r.PDFLink);
@@ -215,6 +228,10 @@ function getCareerLabs(p, user) {
 
 function getCareerLab(id, user) {
   var lab = CareerLabs.getById(id);
+  if (!lab) {
+    var rows = DB.getRows("CareerLabs");
+    lab = rows.find(function(r){ return r.ID === id; }) || null;
+  }
   if (!lab || lab.Status !== "Published") throw new Error("Not found");
   lab._embedUrl    = CareerLabs.youtubeEmbed(lab.YouTubeURL);
   lab._downloadUrl = CareerLabs.driveDownload(lab.PDFLink);
@@ -222,19 +239,27 @@ function getCareerLab(id, user) {
 }
 
 function saveReference(data, user) {
-  return References.save(data);
+  var res = References.save(data);
+  try { CacheService.getScriptCache().remove("sheet_rows::References"); } catch (e) {}
+  return res;
 }
 
 function deleteReference(id, user) {
-  return References.remove(id);
+  var res = References.remove(id);
+  try { CacheService.getScriptCache().remove("sheet_rows::References"); } catch (e) {}
+  return res;
 }
 
 function saveCareerLab(data, user) {
-  return CareerLabs.save(data);
+  var res = CareerLabs.save(data);
+  try { CacheService.getScriptCache().remove("sheet_rows::CareerLabs"); } catch (e) {}
+  return res;
 }
 
 function deleteCareerLab(id, user) {
-  return CareerLabs.remove(id);
+  var res = CareerLabs.remove(id);
+  try { CacheService.getScriptCache().remove("sheet_rows::CareerLabs"); } catch (e) {}
+  return res;
 }
 
 function _safeCareerLabsListPublished(opts) {
@@ -274,19 +299,27 @@ function getStats(user) {
 }
 
 function saveCourse(data, user) {
-  return Courses.save(data);
+  var res = Courses.save(data);
+  try { CacheService.getScriptCache().remove("sheet_rows::Courses"); } catch (e) {}
+  return res;
 }
 
 function deleteCourse(id, user) {
-  return Courses.remove(id);
+  var res = Courses.remove(id);
+  try { CacheService.getScriptCache().remove("sheet_rows::Courses"); } catch (e) {}
+  return res;
 }
 
 function savePost(data, user) {
-  return Blogs.save(data);
+  var res = Blogs.save(data);
+  try { CacheService.getScriptCache().remove("sheet_rows::Blogs"); } catch (e) {}
+  return res;
 }
 
 function deletePost(id, user) {
-  return Blogs.remove(id);
+  var res = Blogs.remove(id);
+  try { CacheService.getScriptCache().remove("sheet_rows::Blogs"); } catch (e) {}
+  return res;
 }
 
 /** Run once from Apps Script editor to create sheets + seed sample data */

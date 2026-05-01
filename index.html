@@ -17,9 +17,9 @@
   --gold:#c69a3a;--cream:#f6f1eb;
   --success:#0f8a5f;--danger:#d11f3b;
   --text:#16181d;--muted:#646b77;--bg:#f4f2ee;--card:#ffffff;--border:#e7e1da;
-  --radius:18px;--radius-sm:10px;
-  --shadow:0 16px 38px rgba(17,24,39,.08);
-  --shadow-h:0 24px 60px rgba(182,30,52,.18);--t:.18s ease;
+  --radius:12px;--radius-sm:8px;
+  --shadow:0 10px 26px rgba(17,24,39,.06);
+  --shadow-h:0 18px 40px rgba(182,30,52,.14);--t:.16s ease;
   --font:'Inter','Segoe UI',system-ui,sans-serif;
   --font-h:'DM Serif Display','Georgia',serif;
 }
@@ -40,7 +40,7 @@ p{margin-bottom:1rem}
 
 .container{max-width:1100px;margin:0 auto;padding:0 20px}
 .section{padding:48px 0}
-.grid-3{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:22px}
+.grid-3{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px}
 .flex-between{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
 .mt-2{margin-top:16px}.mt-3{margin-top:24px}.mb-2{margin-bottom:16px}.mb-3{margin-bottom:24px}
 .hidden{display:none!important}
@@ -64,20 +64,20 @@ p{margin-bottom:1rem}
   .nav-user{padding:10px 16px;color:var(--muted)}
 }
 
-.hero{background:linear-gradient(135deg,#851729 0%,#b61e34 44%,#de5e4e 100%);color:#fff;padding:96px 20px 72px;text-align:left;position:relative;overflow:hidden}
+.hero{background:linear-gradient(135deg,#851729 0%,#b61e34 44%,#de5e4e 100%);color:#fff;padding:56px 20px 40px;text-align:left;position:relative;overflow:hidden}
 .hero::before{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg width='500' height='500' viewBox='0 0 500 500' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='390' cy='120' r='260' fill='rgba(255,255,255,0.05)'/%3E%3Ccircle cx='80' cy='410' r='220' fill='rgba(255,255,255,0.04)'/%3E%3C/svg%3E") no-repeat center/cover;pointer-events:none}
-.hero h1{color:#fff;margin-bottom:14px;font-size:clamp(2.1rem,5vw,4rem);font-weight:400;letter-spacing:-.04em}
+.hero h1{color:#fff;margin-bottom:12px;font-size:clamp(1.6rem,4vw,3rem);font-weight:400;letter-spacing:-.02em}
 .hero h1::after{display:none}
 .hero p{color:rgba(255,255,255,.82);font-size:1.05rem;max-width:620px;margin:0 0 28px;font-weight:400;letter-spacing:.01em}
 .hero-img{width:100%;max-width:920px;margin:0 auto 40px;border-radius:24px;object-fit:cover;max-height:360px;box-shadow:0 28px 70px rgba(0,0,0,.32),0 0 0 1px rgba(255,255,255,.14);display:block}
 
 .card{background:rgba(255,255,255,.92);border:1px solid rgba(231,225,218,.92);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;display:flex;flex-direction:column;transition:transform var(--t),box-shadow var(--t),border-color var(--t)}
-.card:hover{transform:translateY(-6px);box-shadow:var(--shadow-h);border-color:rgba(182,30,52,.18)}
-.card-thumb{width:100%;height:175px;object-fit:cover}
-.card-thumb-placeholder{width:100%;height:175px;display:flex;align-items:center;justify-content:center;font-size:3rem}
-.card-body{padding:18px;flex:1;display:flex;flex-direction:column}
-.card-title{font-size:1.05rem;margin-bottom:7px;color:var(--text);font-family:var(--font-h)}
-.card-desc{color:var(--muted);font-size:.88rem;flex:1;margin-bottom:14px}
+.card:hover{transform:translateY(-4px);box-shadow:var(--shadow-h);border-color:rgba(182,30,52,.12)}
+.card-thumb{width:100%;height:160px;object-fit:cover}
+.card-thumb-placeholder{width:100%;height:160px;display:flex;align-items:center;justify-content:center;font-size:2.6rem;border-radius:calc(var(--radius) - 2px)}
+.card-body{padding:14px;flex:1;display:flex;flex-direction:column}
+.card-title{font-size:1rem;margin-bottom:6px;color:var(--text);font-family:var(--font-h)}
+.card-desc{color:var(--muted);font-size:.84rem;flex:1;margin-bottom:12px}
 .card-footer{margin-top:auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
 .card-meta{font-size:.78rem;color:var(--muted)}
 
@@ -291,12 +291,10 @@ function verifyAndStart(token) {
 }
 
 function prewarmData() {
+  // Prewarm minimal data only — avoid heavy parallel calls that slow initial load.
   Promise.all([
     apiAsync("home", {}),
-    apiAsync("courses", { offset: 0, limit: PAGE_SIZE }),
-    apiAsync("posts", { offset: 0, limit: PAGE_SIZE }),
-    apiAsync("references", { offset: 0, limit: PAGE_SIZE }),
-    apiAsync("careerLabs", { offset: 0, limit: PAGE_SIZE })
+    apiAsync("posts", { offset: 0, limit: 3 })
   ]).catch(function(){});
 }
 
@@ -619,7 +617,7 @@ function statusBadge(s) {
 function courseCard(c) {
   var canOpen = !!c.ID;
   var thumb = c.ThumbnailURL
-    ? '<img class="card-thumb" src="'+esc(c.ThumbnailURL)+'" alt="'+esc(c.Title)+'" onerror="this.parentElement.innerHTML=\'<div class=card-thumb-placeholder style=background:linear-gradient(135deg,#1e3a5f,#2d6a9f)>🎓</div>\'">'
+    ? '<img loading="lazy" class="card-thumb" src="'+esc(c.ThumbnailURL)+'" alt="'+esc(c.Title)+'" onerror="this.parentElement.innerHTML=\'<div class=card-thumb-placeholder style=background:linear-gradient(135deg,#1e3a5f,#2d6a9f)>🎓</div>\'">'
     : '<div class="card-thumb-placeholder" style="background:linear-gradient(135deg,#1e3a5f,#2d6a9f)">🎓</div>';
   return '<div class="card"'+(canOpen?' style="cursor:pointer" onclick="route(\'course\',{id:\''+esc(c.ID)+'\'})"':'')+'>' + thumb +
     '<div class="card-body">' +
@@ -640,7 +638,7 @@ function courseCard(c) {
 function referenceCard(r) {
   var canOpen = !!r.ID;
   var thumb = r.ThumbnailURL
-    ? '<img class="card-thumb" src="'+esc(r.ThumbnailURL)+'" alt="'+esc(r.Title)+'" onerror="this.parentElement.innerHTML=\'<div class=card-thumb-placeholder style=background:linear-gradient(135deg,#2d6a4f,#52b788)>📎</div>\'">' 
+    ? '<img loading="lazy" class="card-thumb" src="'+esc(r.ThumbnailURL)+'" alt="'+esc(r.Title)+'" onerror="this.parentElement.innerHTML=\'<div class=card-thumb-placeholder style=background:linear-gradient(135deg,#2d6a4f,#52b788)>📎</div>\'"' 
     : '<div class="card-thumb-placeholder" style="background:linear-gradient(135deg,#2d6a4f,#52b788)">📎</div>';
   return '<div class="card"'+(canOpen?' style="cursor:pointer" onclick="route(\'reference\',{id:\''+esc(r.ID)+'\'})"':'')+'>'+thumb+
     '<div class="card-body">'+
@@ -660,7 +658,7 @@ function referenceCard(r) {
 function careerLabCard(l) {
   var canOpen = !!l.ID;
   var thumb = l.ThumbnailURL
-    ? '<img class="card-thumb" src="'+esc(l.ThumbnailURL)+'" alt="'+esc(l.Title)+'" onerror="this.parentElement.innerHTML=\'<div class=card-thumb-placeholder style=background:linear-gradient(135deg,#0f766e,#14b8a6)>🧠</div>\'">'
+    ? '<img loading="lazy" class="card-thumb" src="'+esc(l.ThumbnailURL)+'" alt="'+esc(l.Title)+'" onerror="this.parentElement.innerHTML=\'<div class=card-thumb-placeholder style=background:linear-gradient(135deg,#0f766e,#14b8a6)>🧠</div>\'">'
     : '<div class="card-thumb-placeholder" style="background:linear-gradient(135deg,#0f766e,#14b8a6)">🧠</div>';
   return '<div class="card"'+(canOpen?' style="cursor:pointer" onclick="route(\'career-lab-item\',{id:\''+esc(l.ID)+'\'})"':'')+'>'+thumb+
     '<div class="card-body">'+
@@ -682,7 +680,7 @@ function postCard(p) {
   var canOpen = !!p.ID;
   var excerpt = stripHtml(p.Content||"").slice(0,115);
   var thumb   = p.FeaturedImageURL
-    ? '<img class="card-thumb" src="'+esc(p.FeaturedImageURL)+'" alt="'+esc(p.Title)+'" onerror="this.parentElement.innerHTML=\'<div class=card-thumb-placeholder style=background:linear-gradient(135deg,#553c9a,#805ad5)>✍️</div>\'">'
+    ? '<img loading="lazy" class="card-thumb" src="'+esc(p.FeaturedImageURL)+'" alt="'+esc(p.Title)+'" onerror="this.parentElement.innerHTML=\'<div class=card-thumb-placeholder style=background:linear-gradient(135deg,#553c9a,#805ad5)>✍️</div>\'">'
     : '<div class="card-thumb-placeholder" style="background:linear-gradient(135deg,#553c9a,#805ad5)">✍️</div>';
   var tags = p.Tags ? p.Tags.split(",").map(function(t){ t=t.trim(); return t?'<a class="tag-pill" style="font-size:.7rem" href="#" onclick="event.preventDefault();setBlogTag(\''+esc(t)+'\')">'+esc(t)+'</a>':""}).join("") : "";
   return '<div class="card"'+(canOpen?' style="cursor:pointer" onclick="route(\'post\',{id:\''+esc(p.ID)+'\'})"':'')+'>'+thumb+
@@ -908,7 +906,7 @@ function pageCourse(id) {
       '</div>';
 
     if (c.ThumbnailURL) {
-      html += '<img src="'+esc(c.ThumbnailURL)+'" alt="'+esc(c.Title)+'" style="width:100%;border-radius:var(--radius);max-height:340px;object-fit:cover;margin-bottom:28px" onerror="this.style.display=\'none\'">';
+      html += '<img loading="lazy" src="'+esc(c.ThumbnailURL)+'" alt="'+esc(c.Title)+'" style="width:100%;border-radius:var(--radius);max-height:340px;object-fit:cover;margin-bottom:28px" onerror="this.style.display=\'none\'">';
     }
 
     
@@ -1000,7 +998,7 @@ function pagePost(id) {
     var html = '<section class="section"><div class="container" style="max-width:800px">';
 
     if (p.FeaturedImageURL) {
-      html += '<img src="'+esc(p.FeaturedImageURL)+'" alt="'+esc(p.Title)+'" class="featured-img" onerror="this.style.display=\'none\'">';
+      html += '<img loading="lazy" src="'+esc(p.FeaturedImageURL)+'" alt="'+esc(p.Title)+'" class="featured-img" onerror="this.style.display=\'none\'">';
     }
     html += '<h1>'+esc(p.Title)+'</h1>' +
       '<div class="post-meta">' +

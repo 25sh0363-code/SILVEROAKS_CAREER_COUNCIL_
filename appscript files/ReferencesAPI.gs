@@ -16,7 +16,7 @@ var References = (function () {
 
   function getById(id) {
     if (!id) return null;
-    return DB.getRows(SHEET).find(function(r){ return r.ID === id; }) || null;
+    return DB.getRowById(SHEET, id) || null;
   }
 
   function getAllCategories() {

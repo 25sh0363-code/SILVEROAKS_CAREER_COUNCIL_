@@ -35,15 +35,28 @@ var DB = (function () {
    * @returns {Object[]}
    */
   function getRows(sheetName) {
+    var cacheKey = "sheet_rows::" + sheetName;
+    try {
+      var cached = CacheService.getScriptCache().get(cacheKey);
+      if (cached) return JSON.parse(cached);
+    } catch (e) {
+      // ignore cache errors and fall back to reading sheet
+    }
+
     var s    = sheet(sheetName);
     var data = s.getDataRange().getValues();
-    if (data.length < 2) return [];
+    if (data.length < 2) {
+      try { CacheService.getScriptCache().put(cacheKey, JSON.stringify([]), 15); } catch (e) {}
+      return [];
+    }
     var headers = data[0];
-    return data.slice(1).map(function (row) {
+    var rows = data.slice(1).map(function (row) {
       var obj = {};
       headers.forEach(function (h, i) { obj[h] = row[i]; });
       return obj;
     });
+    try { CacheService.getScriptCache().put(cacheKey, JSON.stringify(rows), 15); } catch (e) {}
+    return rows;
   }
 
   /**
@@ -366,6 +379,7 @@ var DB = (function () {
   // ── Public API ────────────────────────────────────────────────────────────
   return {
     getRows:          getRows,
+    getRowById:       getRowById,
     appendRow:        appendRow,
     updateRow:        updateRow,
     deleteRow:        deleteRow,
@@ -378,3 +392,32 @@ var DB = (function () {
   };
 
 })();
+
+  /**
+   * Find a single row by ID using a text finder on the first column to avoid
+   * loading the entire sheet into memory. Returns an object mapped by headers
+   * or null if not found.
+   */
+  function getRowById(sheetName, id) {
+    if (!id) return null;
+    var s;
+    try { s = getSpreadsheet().getSheetByName(sheetName); } catch (e) { return null; }
+    if (!s) return null;
+
+    var lastRow = s.getLastRow();
+    if (lastRow < 2) return null;
+
+    var headers = s.getRange(1, 1, 1, s.getLastColumn()).getValues()[0];
+    try {
+      var range = s.getRange(2, 1, Math.max(1, lastRow - 1), 1);
+      var f = range.createTextFinder(String(id)).matchEntireCell(true).findNext();
+      if (!f) return null;
+      var rowIdx = f.getRow();
+      var values = s.getRange(rowIdx, 1, 1, headers.length).getValues()[0];
+      var obj = {};
+      headers.forEach(function (h, i) { obj[h] = values[i]; });
+      return obj;
+    } catch (e) {
+      return null;
+    }
+  }

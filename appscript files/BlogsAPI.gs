@@ -30,7 +30,7 @@ var Blogs = (function () {
    */
   function getById(id) {
     if (!id) return null;
-    return DB.getRows(SHEET).find(function (r) { return r.ID === id; }) || null;
+    return DB.getRowById(SHEET, id) || null;
   }
 
   /** Returns a de-duplicated sorted list of all tags across published posts. */
