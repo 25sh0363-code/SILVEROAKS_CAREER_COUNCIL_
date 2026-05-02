@@ -4,40 +4,15 @@ Follow these steps to hand the project over to a new Google/GitHub account.
 
 ---
 
-## 1. Google Sheet
+## 1. Supabase
 
-1. Open the spreadsheet at:  
-   `https://docs.google.com/spreadsheets/d/1nDVOm72SBdR-Nf3AfWwi5QOZP5QxCXSLu3W1QnA29w0`
-2. Click **Share** (top-right).
-3. Add the new owner's Gmail → set role to **Editor**.
-4. Click **Share**, then open **Share** again.
-5. Next to their name, click the role dropdown → **Transfer ownership** → confirm.
-6. The new owner must accept the ownership transfer from their email.
+1. Open the Supabase project that stores the app data.
+2. Make sure the tables and storage bucket described in [SUPABASE_SETUP.md](SUPABASE_SETUP.md) exist.
+3. If the new owner uses a different Supabase project, update `SUPABASE_URL` and `SUPABASE_ANON_KEY` in `index.html`.
 
 ---
 
-## 2. Google Apps Script (GAS)
-
-The Apps Script project is tied to the Google account that created it. The cleanest way to transfer it is to copy it into the new account:
-
-1. In the current account, open Apps Script:  
-   `https://script.google.com`
-2. Open the **SILVEROAKS_CAREER_COUNCIL_** project.
-3. For each file (`Code.gs`, `Auth.gs`, `SheetsDB.gs`, `CoursesAPI.gs`, `BlogsAPI.gs`, `appsscript.json`), copy the full contents.
-4. Sign in to the **new account** and create a new Apps Script project.
-5. Paste each file's contents into matching files in the new project.
-6. Update `SPREADSHEET_ID` in `Code.gs` if the sheet was also transferred (it stays the same if the sheet ID didn't change).
-7. Click **Deploy → New deployment** → type **Web app**:
-   - Execute as: **Me**
-   - Who has access: **Anyone**
-8. Copy the new deployment URL.
-9. Update `GAS_URL` in `index.html` with the new URL (see step 5 below).
-
-> **Alternative**: Add the new account as a co-owner in Apps Script via **Share** in the editor, then have them create a new deployment from their account.
-
----
-
-## 3. Google Cloud OAuth (Client ID)
+## 2. Google Cloud OAuth (Client ID)
 
 The OAuth Client ID is tied to the Google Cloud project of the original account.
 
@@ -53,15 +28,11 @@ The OAuth Client ID is tied to the Google Cloud project of the original account.
    - Authorized JavaScript origins:
      - `https://25sh0363-code.github.io` (or the new GitHub Pages URL)
 5. Copy the new **Client ID**.
-6. In `index.html`, find:
-   ```js
-   var CLIENT_ID = "392344488331-...";
-   ```
-   Replace it with the new Client ID.
+6. In `index.html`, replace the current `CLIENT_ID` value.
 
 ---
 
-## 4. GitHub Repository
+## 3. GitHub Repository
 
 ### Option A — Transfer the repository
 1. Go to the repo: `https://github.com/25sh0363-code/SILVEROAKS_CAREER_COUNCIL_`
@@ -77,12 +48,13 @@ The OAuth Client ID is tied to the Google Cloud project of the original account.
 
 ---
 
-## 5. Update index.html After Transfer
+## 4. Update `index.html` After Transfer
 
-After steps 2–4, update these two lines in `index.html`:
+After steps 1–3, update these lines in `index.html`:
 
 ```js
-var GAS_URL   = "PASTE_NEW_GAS_DEPLOYMENT_URL_HERE";
+var SUPABASE_URL = "PASTE_NEW_SUPABASE_URL_HERE";
+var SUPABASE_ANON_KEY = "PASTE_NEW_SUPABASE_ANON_KEY_HERE";
 var CLIENT_ID = "PASTE_NEW_OAUTH_CLIENT_ID_HERE";
 ```
 
@@ -90,18 +62,18 @@ Then commit and push:
 
 ```bash
 git add index.html
-git commit -m "update GAS URL and CLIENT_ID for new owner"
+git commit -m "update Supabase and OAuth settings for new owner"
 git push
 ```
 
 ---
 
-## 6. Set the First Admin
+## 5. Set the First Admin
 
 After the site is live under the new account:
 
-1. Open the Google Sheet → **Users** tab.
-2. Find the new owner's school email row (it appears after their first sign-in), or add a row manually:
+1. Open Supabase and look at the `users` table.
+2. Find the new owner's school email row after their first sign-in, or add one manually:
 
    | Email | Role | DisplayName | CreatedDate |
    |-------|------|-------------|-------------|
@@ -111,10 +83,9 @@ After the site is live under the new account:
 
 ---
 
-## 7. Google Drive (Thumbnails Folder)
+## 6. Uploads
 
-Uploaded course thumbnails are stored in a folder called **CareerLab Thumbnails** in the Drive of whichever Google account runs the Apps Script.  
-After transferring GAS to the new account, new uploads will go to the new account's Drive automatically. Old thumbnails may break — to fix them, re-upload images from the course edit form.
+Uploaded thumbnails and PDFs are stored in the Supabase Storage bucket described in [SUPABASE_SETUP.md](SUPABASE_SETUP.md).
 
 ---
 
@@ -122,7 +93,6 @@ After transferring GAS to the new account, new uploads will go to the new accoun
 
 | Item | Value |
 |------|-------|
-| GAS URL | `https://script.google.com/macros/s/AKfycbzNZG0i3UcWjUgD4aW3sFwIFVyR939dOSliZqiNyCKt5NEKV_FiNvlVxlO2LKZYVC2S/exec` |
 | OAuth Client ID | `392344488331-qt8b726lvhbldl9bptpj58bagj8qq2af.apps.googleusercontent.com` |
-| Sheet ID | `1nDVOm72SBdR-Nf3AfWwi5QOZP5QxCXSLu3W1QnA29w0` |
+| Supabase tables | `public.users`, `public.courses`, `public.blogs`, `public.reference_materials`, `public.career_labs` |
 | GitHub Pages | `https://25sh0363-code.github.io/SILVEROAKS_CAREER_COUNCIL_/` |

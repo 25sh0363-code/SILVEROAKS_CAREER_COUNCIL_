@@ -6,6 +6,7 @@
 <title>Career Laboratory Resource Website</title>
 
 <script src="https://accounts.google.com/gsi/client" async defer></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
@@ -229,15 +230,320 @@ textarea.form-control{min-height:110px;resize:vertical}
 
 <script>
 
-var GAS_URL   = "https://script.google.com/macros/s/AKfycbz_2m51RDyDz5eSIVC_-EfLNqURFyIyAbMo3ii8UVizMFVkHc6Bhi3mvkP9Te_47bSF/exec";
-  
+var SUPABASE_URL   = "https://wicihqhrjgcikcyurbtd.supabase.co";
+var SUPABASE_ANON_KEY = "sb_publishable_ZgwGLXUMusAEhv1ghHdRGg_cnzDn4Of";
+var SUPABASE_STORAGE_BUCKET = "career-lab-uploads";
+
 var CLIENT_ID = "392344488331-qt8b726lvhbldl9bptpj58bagj8qq2af.apps.googleusercontent.com";
   
 var APP_NAME  = "Career Laboratory Resource Website";
 var PAGE_SIZE = 9;
 
-var _idToken = sessionStorage.getItem("gas_id_token") || null;
+var _idToken = sessionStorage.getItem("auth_id_token") || null;
 var APP_USER = null;   
+var SUPABASE = null;
+
+function _initSupabase() {
+  if (SUPABASE) return SUPABASE;
+  if (!SUPABASE_URL || !SUPABASE_ANON_KEY || SUPABASE_URL.indexOf("PUT_YOUR_SUPABASE_URL_HERE") !== -1 || SUPABASE_ANON_KEY.indexOf("PUT_YOUR_SUPABASE_ANON_KEY_HERE") !== -1) {
+    throw new Error("Set SUPABASE_URL and SUPABASE_ANON_KEY in index.html before using the app.");
+  }
+  if (!window.supabase || !window.supabase.createClient) {
+    throw new Error("Supabase client library failed to load.");
+  }
+  SUPABASE = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
+  return SUPABASE;
+}
+
+function _checkSupabaseConfig() {
+  if (!SUPABASE_URL || SUPABASE_URL.indexOf("PUT_YOUR_SUPABASE_URL_HERE") !== -1) {
+    return { ok: false, message: "Missing SUPABASE_URL." };
+  }
+  if (!SUPABASE_ANON_KEY || SUPABASE_ANON_KEY.indexOf("PUT_YOUR_SUPABASE_ANON_KEY_HERE") !== -1) {
+    return { ok: false, message: "Missing SUPABASE_ANON_KEY." };
+  }
+  return { ok: true };
+}
+
+function _db() {
+  return _initSupabase();
+}
+
+function _decodeJwt(token) {
+  try {
+    var payload = token.split('.')[1] || "";
+    while (payload.length % 4) payload += "=";
+    payload = payload.replace(/-/g, "+").replace(/_/g, "/");
+    return JSON.parse(atob(payload));
+  } catch (e) {
+    return null;
+  }
+}
+
+function _nowIso() {
+  return new Date().toISOString();
+}
+
+function _uuid() {
+  if (window.crypto && crypto.randomUUID) return crypto.randomUUID();
+  return 'id-' + Math.random().toString(36).slice(2) + Date.now().toString(36);
+}
+
+function _isAllowedEmail(email) {
+  return String(email || "").toLowerCase().endsWith("@hyd.silveroaks.co.in");
+}
+
+function _toCourse(row) {
+  return {
+    ID: row.id,
+    Title: row.title,
+    Description: row.description,
+    Instructor: row.instructor,
+    Category: row.category,
+    Grade: row.grade,
+    ThumbnailURL: row.thumbnail_url,
+    YouTubeURL: row.youtube_url,
+    PDFLink: row.pdf_link,
+    Content: row.content,
+    Status: row.status,
+    CreatedDate: row.created_date,
+    UpdatedDate: row.updated_date,
+  };
+}
+
+function _toPost(row) {
+  return {
+    ID: row.id,
+    Title: row.title,
+    Content: row.content,
+    FeaturedImageURL: row.featured_image_url,
+    PDFLink: row.pdf_link,
+    AuthorEmail: row.author_email,
+    Tags: row.tags,
+    Status: row.status,
+    CreatedDate: row.created_date,
+    UpdatedDate: row.updated_date,
+  };
+}
+
+function _toReference(row) {
+  return {
+    ID: row.id,
+    Title: row.title,
+    Description: row.description,
+    Author: row.author,
+    Category: row.category,
+    ThumbnailURL: row.thumbnail_url,
+    YouTubeURL: row.youtube_url,
+    PDFLink: row.pdf_link,
+    Content: row.content,
+    Status: row.status,
+    CreatedDate: row.created_date,
+    UpdatedDate: row.updated_date,
+  };
+}
+
+function _toCareerLab(row) {
+  return {
+    ID: row.id,
+    Title: row.title,
+    Student: row.student,
+    Description: row.description,
+    Mentor: row.mentor,
+    Category: row.category,
+    ThumbnailURL: row.thumbnail_url,
+    YouTubeURL: row.youtube_url,
+    PDFLink: row.pdf_link,
+    Content: row.content,
+    Status: row.status,
+    CreatedDate: row.created_date,
+    UpdatedDate: row.updated_date,
+  };
+}
+
+function _toUser(row) {
+  return {
+    Name: row.name,
+    Email: row.email,
+    Role: row.role,
+    Status: row.status,
+    CreatedDate: row.created_date,
+  };
+}
+
+function _courseRowToDb(payload, existing) {
+  return {
+    id: payload.id || _uuid(),
+    title: payload.title || "",
+    description: payload.description || "",
+    instructor: payload.instructor || "",
+    category: payload.category || "",
+    grade: payload.grade || "",
+    thumbnail_url: payload.thumbnailUrl || "",
+    youtube_url: payload.youtubeUrl || "",
+    pdf_link: payload.pdfLink || "",
+    content: payload.content || "",
+    status: payload.status || "Draft",
+    created_date: existing && existing.created_date ? existing.created_date : _nowIso(),
+    updated_date: _nowIso(),
+  };
+}
+
+function _postRowToDb(payload, existing, authorEmail) {
+  return {
+    id: payload.id || _uuid(),
+    title: payload.title || "",
+    content: payload.content || "",
+    featured_image_url: payload.featuredImageUrl || "",
+    pdf_link: payload.pdfLink || "",
+    author_email: authorEmail || (existing && existing.author_email) || (APP_USER && APP_USER.email) || "",
+    tags: payload.tags || "",
+    status: payload.status || "Draft",
+    created_date: existing && existing.created_date ? existing.created_date : _nowIso(),
+    updated_date: _nowIso(),
+  };
+}
+
+function _referenceRowToDb(payload, existing) {
+  return {
+    id: payload.id || _uuid(),
+    title: payload.title || "",
+    description: payload.description || "",
+    author: payload.author || "",
+    category: payload.category || "",
+    thumbnail_url: payload.thumbnailUrl || "",
+    youtube_url: payload.youtubeUrl || "",
+    pdf_link: payload.pdfLink || "",
+    content: payload.content || "",
+    status: payload.status || "Draft",
+    created_date: existing && existing.created_date ? existing.created_date : _nowIso(),
+    updated_date: _nowIso(),
+  };
+}
+
+function _careerLabRowToDb(payload, existing) {
+  return {
+    id: payload.id || _uuid(),
+    title: payload.title || "",
+    student: payload.student || "",
+    description: payload.description || "",
+    mentor: payload.mentor || "",
+    category: payload.category || "",
+    thumbnail_url: payload.thumbnailUrl || "",
+    youtube_url: payload.youtubeUrl || "",
+    pdf_link: payload.pdfLink || "",
+    content: payload.content || "",
+    status: payload.status || "Draft",
+    created_date: existing && existing.created_date ? existing.created_date : _nowIso(),
+    updated_date: _nowIso(),
+  };
+}
+
+function _userRowToDb(user) {
+  return {
+    id: user.email,
+    name: user.name || user.email.split("@")[0],
+    email: user.email,
+    role: user.role || "Student",
+    status: user.status || "Active",
+    created_date: user.created_date || _nowIso(),
+  };
+}
+
+function _normalizeStatus(row) {
+  return String(row && row.status || "");
+}
+
+function _withErrorContext(err, context) {
+  var msg = err && err.message ? err.message : String(err || "Unknown error");
+  return new Error(context ? (context + ": " + msg) : msg);
+}
+
+async function _selectAll(table, mapper) {
+  var query = _db().from(table).select("*");
+  if (table !== "users") query = query.eq("status", "Published");
+  var result = await query.order(table === "users" ? "created_date" : "created_date", { ascending: false });
+  if (result.error) throw _withErrorContext(result.error, "Failed to load " + table);
+  return (result.data || []).map(mapper || function(r){ return r; });
+}
+
+async function _selectAny(table, mapper) {
+  var result = await _db().from(table).select("*").order("created_date", { ascending: false });
+  if (result.error) throw _withErrorContext(result.error, "Failed to load " + table);
+  return (result.data || []).map(mapper || function(r){ return r; });
+}
+
+async function _selectById(table, id, mapper) {
+  var result = await _db().from(table).select("*").eq("id", id).maybeSingle();
+  if (result.error) throw _withErrorContext(result.error, "Failed to load " + table + " row");
+  return result.data ? (mapper ? mapper(result.data) : result.data) : null;
+}
+
+async function _ensureUser(email, name) {
+  var db = _db();
+  var current = await db.from("users").select("*").eq("email", email).maybeSingle();
+  if (current.error) throw _withErrorContext(current.error, "Failed to load user");
+  if (current.data) return _toUser(current.data);
+  var inserted = await db.from("users").upsert([_userRowToDb({ email: email, name: name, role: "Student", status: "Active" })], { onConflict: "email" }).select("*").single();
+  if (inserted.error) throw _withErrorContext(inserted.error, "Failed to create user");
+  return _toUser(inserted.data);
+}
+
+function _pageRows(rows, offset, limit) {
+  var start = Number(offset) || 0;
+  var size = Number(limit) || PAGE_SIZE;
+  return { total: rows.length, rows: rows.slice(start, start + size) };
+}
+
+function _matchesText(value, q) {
+  return String(value || "").toLowerCase().indexOf(String(q || "").toLowerCase()) !== -1;
+}
+
+function _filterCourses(rows, opts) {
+  var search = String(opts.search || "").toLowerCase();
+  var category = String(opts.category || "").toLowerCase();
+  var grade = String(opts.grade || "").toLowerCase();
+  return rows.filter(function (r) {
+    if (search && !(_matchesText(r.Title, search) || _matchesText(r.Description, search) || _matchesText(r.Instructor, search) || _matchesText(r.Category, search) || _matchesText(r.Grade, search))) return false;
+    if (category && String(r.Category || "").toLowerCase() !== category) return false;
+    if (grade && String(r.Grade || "").toLowerCase() !== grade) return false;
+    return true;
+  });
+}
+
+function _filterPosts(rows, opts) {
+  var search = String(opts.search || "").toLowerCase();
+  var tag = String(opts.tag || "").toLowerCase();
+  return rows.filter(function (r) {
+    if (search && !(_matchesText(r.Title, search) || _matchesText(r.Content, search) || _matchesText(r.Tags, search))) return false;
+    if (tag && !String(r.Tags || "").toLowerCase().split(",").some(function(t){ return t.trim() === tag; })) return false;
+    return true;
+  });
+}
+
+function _filterReferences(rows, opts) {
+  var search = String(opts.search || "").toLowerCase();
+  var category = String(opts.category || "").toLowerCase();
+  return rows.filter(function (r) {
+    if (search && !(_matchesText(r.Title, search) || _matchesText(r.Description, search) || _matchesText(r.Author, search) || _matchesText(r.Category, search))) return false;
+    if (category && String(r.Category || "").toLowerCase() !== category) return false;
+    return true;
+  });
+}
+
+function _filterCareerLabs(rows, opts) {
+  var search = String(opts.search || "").toLowerCase();
+  var category = String(opts.category || "").toLowerCase();
+  var student = String(opts.student || "").toLowerCase();
+  return rows.filter(function (r) {
+    if (search && !(_matchesText(r.Title, search) || _matchesText(r.Student, search) || _matchesText(r.Description, search) || _matchesText(r.Mentor, search) || _matchesText(r.Category, search))) return false;
+    if (category && String(r.Category || "").toLowerCase() !== category) return false;
+    if (student && String(r.Student || "").toLowerCase().indexOf(student) === -1) return false;
+    return true;
+  });
+}
 
 document.getElementById("footer-year").textContent = new Date().getFullYear();
 
@@ -264,30 +570,50 @@ if (window.google && window.google.accounts) {
 
 function handleCredential(response) {
   _idToken = response.credential;
-  sessionStorage.setItem("gas_id_token", _idToken);
+  sessionStorage.setItem("auth_id_token", _idToken);
   verifyAndStart(_idToken);
 }
 
 function verifyAndStart(token) {
   showLoader();
-  fetchGAS("me", {token: token}, function(user) {
-    hideLoader();
-    APP_USER = user;
-    _idToken = token;
-    showChrome();
-    route("home");
-    prewarmData();
-  }, function(err) {
-    hideLoader();
-    
-    _idToken = null;
-    sessionStorage.removeItem("gas_id_token");
-    APP_USER = null;
-    renderLogin(err.message);
-    if (window.google && google.accounts) {
-      google.accounts.id.prompt();
+  (async function() {
+    try {
+      var cfg = _checkSupabaseConfig();
+      if (!cfg.ok) throw new Error(cfg.message);
+      var info = _decodeJwt(token);
+      if (!info) throw new Error("Invalid sign-in token. Please sign in again.");
+      var email = String(info.email || "").toLowerCase();
+      if (!info.email_verified) throw new Error("Google account email is not verified.");
+      if (!_isAllowedEmail(email)) throw new Error("Access denied: only @hyd.silveroaks.co.in accounts are allowed.");
+      if (CLIENT_ID && CLIENT_ID !== "PUT_YOUR_OAUTH_CLIENT_ID" && info.aud !== CLIENT_ID) {
+        throw new Error("Invalid sign-in audience. Please sign in again.");
+      }
+      var user = await _ensureUser(email, info.name || email.split("@")[0]);
+      if (_normalizeStatus(user).toLowerCase() !== "active") {
+        throw new Error("Your account is not active. Contact an administrator.");
+      }
+      APP_USER = {
+        email: email,
+        name: user.Name || info.name || email.split("@")[0],
+        role: user.Role || "Student",
+        isAdmin: (user.Role || "Student") === "Admin" || (user.Role || "Student") === "Editor",
+      };
+      _idToken = token;
+      hideLoader();
+      showChrome();
+      route("home");
+      prewarmData();
+    } catch (err) {
+      hideLoader();
+      _idToken = null;
+      sessionStorage.removeItem("auth_id_token");
+      APP_USER = null;
+      renderLogin(err.message);
+      if (window.google && google.accounts) {
+        google.accounts.id.prompt();
+      }
     }
-  });
+  })();
 }
 
 function prewarmData() {
@@ -313,7 +639,7 @@ function showChrome() {
 function signOut() {
   _idToken = null;
   APP_USER = null;
-  sessionStorage.removeItem("gas_id_token");
+  sessionStorage.removeItem("auth_id_token");
   if (window.google && google.accounts && google.accounts.id) {
     google.accounts.id.disableAutoSelect();
   }
@@ -396,48 +722,27 @@ function _buildQuery(params) {
   }).join("&");
 }
 
-function _requestJSON(url, cacheKey) {
-  if (_pending[cacheKey]) return _pending[cacheKey];
-  var promise = fetch(url)
-    .then(function(r) { return r.json(); })
-    .then(function(data) {
-      delete _pending[cacheKey];
-      return data;
-    }, function(err) {
-      delete _pending[cacheKey];
-      throw err;
-    });
-  _pending[cacheKey] = promise;
-  return promise;
-}
-
 function apiAsync(action, params) {
-  var p = Object.assign({}, params, { action: action, token: _idToken || "" });
-  var qs = _buildQuery(p);
-  var cacheKey = action + "|" + qs;
+  var cacheKey = action + "|" + JSON.stringify(params || {});
   var cached = _cacheGet(cacheKey);
   if (cached) return Promise.resolve(cached);
-  return _requestJSON(GAS_URL + "?" + qs, cacheKey).then(function(data) {
-    if (data && !data.error) _cacheSet(cacheKey, data);
-    if (data && data.error) throw new Error(data.error);
+  return _apiAsync(action, params || {}).then(function(data) {
+    _cacheSet(cacheKey, data);
     return data;
   });
 }
 
 function api(action, params, onOk, onErr) {
-  var p = Object.assign({}, params, { action: action, token: _idToken || "" });
-  var qs = _buildQuery(p);
-  var cacheKey = action + "|" + qs;
+  var cacheKey = action + "|" + JSON.stringify(params || {});
   var cached = _cacheGet(cacheKey);
   if (cached) {
     onOk(cached);
     return;
   }
   _npStart();
-  _requestJSON(GAS_URL + "?" + qs, cacheKey)
+  _apiAsync(action, params || {})
     .then(function(data) {
       _npDone();
-      if (data && data.error) { (onErr || defaultErr)(new Error(data.error)); return; }
       _cacheSet(cacheKey, data);
       onOk(data);
     })
@@ -445,35 +750,262 @@ function api(action, params, onOk, onErr) {
 }
 
 function apiPost(action, body, onOk, onErr) {
-  var payload = Object.assign({}, body, { action: action, token: _idToken || "" });
   showLoader();
-  fetch(GAS_URL, {
-    method:  "POST",
-    headers: { "Content-Type": "text/plain" },
-    body:    JSON.stringify(payload),
-  })
-    .then(function(r) { return r.json(); })
+  _apiPost(action, body || {})
     .then(function(data) {
       hideLoader();
-      if (data && data.error) { (onErr || defaultErr)(new Error(data.error)); return; }
       _cacheInvalidate();
       onOk(data);
     })
     .catch(function(e) { hideLoader(); (onErr || defaultErr)(e); });
 }
 
-function fetchGAS(action, params, onOk, onErr) {
-  var p = Object.assign({}, params, { action: action });
-  var qs = Object.keys(p).map(function(k) {
-    return encodeURIComponent(k) + "=" + encodeURIComponent(p[k] !== undefined ? p[k] : "");
-  }).join("&");
-  fetch(GAS_URL + "?" + qs)
-    .then(function(r) { return r.json(); })
-    .then(function(data) {
-      if (data && data.error) { onErr(new Error(data.error)); return; }
-      onOk(data);
-    })
-    .catch(onErr);
+async function _apiAsync(action, params) {
+  var db = _db();
+  switch (action) {
+    case "me":
+      return APP_USER;
+    case "home":
+      return _loadHomeData(db);
+    case "courses":
+      return _loadCourses(db, params);
+    case "course":
+      return _loadCourse(db, params.id);
+    case "posts":
+      return _loadPosts(db, params);
+    case "post":
+      return _loadPost(db, params.id);
+    case "references":
+      return _loadReferences(db, params);
+    case "reference":
+      return _loadReference(db, params.id);
+    case "careerLabs":
+      return _loadCareerLabs(db, params);
+    case "careerLab":
+      return _loadCareerLab(db, params.id);
+    case "search":
+      return _loadSearch(db, params.q);
+    case "stats":
+      return _loadStats(db);
+    case "allCourses":
+      return _selectAny("courses", _toCourse);
+    case "allPosts":
+      return _selectAny("blogs", _toPost);
+    case "allReferences":
+      return _selectAny("reference_materials", _toReference);
+    case "allCareerLabs":
+      return _selectAny("career_labs", _toCareerLab);
+    case "allUsers":
+      return _selectAny("users", _toUser);
+    default:
+      throw new Error("Unknown action");
+  }
+}
+
+async function _apiPost(action, body) {
+  var db = _db();
+  switch (action) {
+    case "saveCourse":
+      return _saveCourse(db, body.data || {});
+    case "deleteCourse":
+      return _deleteById(db, "courses", body.id);
+    case "savePost":
+      return _savePost(db, body.data || {});
+    case "deletePost":
+      return _deleteById(db, "blogs", body.id);
+    case "saveReference":
+      return _saveReference(db, body.data || {});
+    case "deleteReference":
+      return _deleteById(db, "reference_materials", body.id);
+    case "saveCareerLab":
+      return _saveCareerLab(db, body.data || {});
+    case "deleteCareerLab":
+      return _deleteById(db, "career_labs", body.id);
+    case "updateUserRole":
+      return _updateUserRole(db, body.email, body.role);
+    case "banUser":
+      return _setBanStatus(db, body.email, true);
+    case "unbanUser":
+      return _setBanStatus(db, body.email, false);
+    case "uploadFile":
+      throw new Error("Upload is handled directly in the browser.");
+    default:
+      throw new Error("Unknown action");
+  }
+}
+
+async function _loadCourses(db, params) {
+  var rows = await _selectAll("courses", _toCourse);
+  rows = _filterCourses(rows, params || {});
+  return _pageRows(rows, params && params.offset, params && params.limit);
+}
+
+async function _loadCourse(db, id) {
+  var row = await _selectById("courses", id, _toCourse);
+  if (!row || row.Status !== "Published") throw new Error("Not found");
+  return row;
+}
+
+async function _loadPosts(db, params) {
+  var rows = await _selectAll("blogs", _toPost);
+  rows = _filterPosts(rows, params || {});
+  return _pageRows(rows, params && params.offset, params && params.limit);
+}
+
+async function _loadPost(db, id) {
+  var row = await _selectById("blogs", id, _toPost);
+  if (!row || row.Status !== "Published") throw new Error("Not found");
+  return row;
+}
+
+async function _loadReferences(db, params) {
+  var rows = await _selectAll("reference_materials", _toReference);
+  rows = _filterReferences(rows, params || {});
+  return _pageRows(rows, params && params.offset, params && params.limit);
+}
+
+async function _loadReference(db, id) {
+  var row = await _selectById("reference_materials", id, _toReference);
+  if (!row || row.Status !== "Published") throw new Error("Not found");
+  return row;
+}
+
+async function _loadCareerLabs(db, params) {
+  var rows = await _selectAll("career_labs", _toCareerLab);
+  rows = _filterCareerLabs(rows, params || {});
+  return _pageRows(rows, params && params.offset, params && params.limit);
+}
+
+async function _loadCareerLab(db, id) {
+  var row = await _selectById("career_labs", id, _toCareerLab);
+  if (!row || row.Status !== "Published") throw new Error("Not found");
+  return row;
+}
+
+async function _loadHomeData(db) {
+  var courses = await _selectAll("courses", _toCourse);
+  var posts = await _selectAll("blogs", _toPost);
+  var references = await _selectAll("reference_materials", _toReference);
+  var labs = await _selectAll("career_labs", _toCareerLab);
+  return {
+    featuredCourses: courses.slice(0, 3),
+    featuredPosts: posts.slice(0, 3),
+    featuredReferences: references.slice(0, 3),
+    featuredCareerLabs: labs.slice(0, 3),
+    categories: Array.from(new Set(courses.map(function(c){ return c.Category || ""; }).filter(Boolean))).sort(),
+    refCategories: Array.from(new Set(references.map(function(r){ return r.Category || ""; }).filter(Boolean))).sort(),
+    labCategories: Array.from(new Set(labs.map(function(l){ return l.Category || ""; }).filter(Boolean))).sort(),
+    allGrades: Array.from(new Set(courses.map(function(c){ return c.Grade || ""; }).filter(Boolean))).sort(),
+    allTags: Array.from(new Set(posts.reduce(function(acc, post){
+      String(post.Tags || "").split(",").forEach(function(tag){ var t = tag.trim(); if (t) acc.push(t); });
+      return acc;
+    }, []) )).sort(),
+  };
+}
+
+async function _loadSearch(db, q) {
+  var query = String(q || "").toLowerCase();
+  var courses = await _selectAll("courses", _toCourse);
+  var posts = await _selectAll("blogs", _toPost);
+  var references = await _selectAll("reference_materials", _toReference);
+  var careerLabs = await _selectAll("career_labs", _toCareerLab);
+  function match(row, fields) {
+    return fields.some(function(field) { return _matchesText(row[field], query); });
+  }
+  return {
+    courses: courses.filter(function(r){ return match(r, ["Title", "Description", "Instructor", "Category", "Grade"]); }).slice(0, 5),
+    posts: posts.filter(function(r){ return match(r, ["Title", "Content", "Tags"]); }).slice(0, 5),
+    references: references.filter(function(r){ return match(r, ["Title", "Description", "Author", "Category"]); }).slice(0, 5),
+    careerLabs: careerLabs.filter(function(r){ return match(r, ["Title", "Student", "Description", "Mentor", "Category"]); }).slice(0, 5),
+  };
+}
+
+async function _loadStats(db) {
+  var courses = await _selectAny("courses", _toCourse);
+  var blogs = await _selectAny("blogs", _toPost);
+  var references = await _selectAny("reference_materials", _toReference);
+  var careerLabs = await _selectAny("career_labs", _toCareerLab);
+  var users = await _selectAny("users", _toUser);
+  var publishedCourses = courses.filter(function(r){ return r.Status === "Published"; });
+  var publishedBlogs = blogs.filter(function(r){ return r.Status === "Published"; });
+  var publishedReferences = references.filter(function(r){ return r.Status === "Published"; });
+  var publishedCareerLabs = careerLabs.filter(function(r){ return r.Status === "Published"; });
+  var activeUsers = users.filter(function(r){ return r.Status === "Active"; });
+  var recent = [];
+  courses.forEach(function(c){ recent.push({ type:"Course", id:c.ID, title:c.Title, status:c.Status, date:c.CreatedDate }); });
+  blogs.forEach(function(b){ recent.push({ type:"Blog", id:b.ID, title:b.Title, status:b.Status, date:b.CreatedDate }); });
+  references.forEach(function(r){ recent.push({ type:"Reference", id:r.ID, title:r.Title, status:r.Status, date:r.CreatedDate }); });
+  careerLabs.forEach(function(l){ recent.push({ type:"Career Lab", id:l.ID, title:l.Title, status:l.Status, date:l.CreatedDate }); });
+  recent.sort(function(a, b) { return new Date(b.date) - new Date(a.date); });
+  var catMap = {};
+  courses.forEach(function(c) { var cat = c.Category || "Uncategorized"; catMap[cat] = (catMap[cat] || 0) + 1; });
+  var gradeMap = {};
+  courses.forEach(function(c) { var g = c.Grade || "Unassigned"; gradeMap[g] = (gradeMap[g] || 0) + 1; });
+  return {
+    totalCourses: courses.length,
+    totalBlogs: blogs.length,
+    totalReferences: references.length,
+    totalCareerLabs: careerLabs.length,
+    publishedCourses: publishedCourses.length,
+    publishedBlogs: publishedBlogs.length,
+    publishedReferences: publishedReferences.length,
+    publishedCareerLabs: publishedCareerLabs.length,
+    activeUsers: activeUsers.length,
+    recentActivity: recent.slice(0, 10),
+    categoryData: catMap,
+    gradeData: gradeMap,
+  };
+}
+
+async function _saveCourse(db, payload) {
+  var existing = payload.id ? await _selectById("courses", payload.id) : null;
+  var row = _courseRowToDb(payload, existing);
+  var result = await db.from("courses").upsert([row], { onConflict: "id" }).select("*").single();
+  if (result.error) throw _withErrorContext(result.error, "Failed to save course");
+  return { ok: true, id: result.data.id };
+}
+
+async function _savePost(db, payload) {
+  var existing = payload.id ? await _selectById("blogs", payload.id) : null;
+  var row = _postRowToDb(payload, existing, APP_USER && APP_USER.email);
+  var result = await db.from("blogs").upsert([row], { onConflict: "id" }).select("*").single();
+  if (result.error) throw _withErrorContext(result.error, "Failed to save post");
+  return { ok: true, id: result.data.id };
+}
+
+async function _saveReference(db, payload) {
+  var existing = payload.id ? await _selectById("reference_materials", payload.id) : null;
+  var row = _referenceRowToDb(payload, existing);
+  var result = await db.from("reference_materials").upsert([row], { onConflict: "id" }).select("*").single();
+  if (result.error) throw _withErrorContext(result.error, "Failed to save reference");
+  return { ok: true, id: result.data.id };
+}
+
+async function _saveCareerLab(db, payload) {
+  var existing = payload.id ? await _selectById("career_labs", payload.id) : null;
+  var row = _careerLabRowToDb(payload, existing);
+  var result = await db.from("career_labs").upsert([row], { onConflict: "id" }).select("*").single();
+  if (result.error) throw _withErrorContext(result.error, "Failed to save career lab");
+  return { ok: true, id: result.data.id };
+}
+
+async function _deleteById(db, table, id) {
+  if (!id) throw new Error("Missing id");
+  var result = await db.from(table).delete().eq("id", id);
+  if (result.error) throw _withErrorContext(result.error, "Failed to delete from " + table);
+  return { ok: true };
+}
+
+async function _updateUserRole(db, email, role) {
+  var result = await db.from("users").update({ role: role, status: "Active" }).eq("email", String(email || "").toLowerCase()).select("*").maybeSingle();
+  if (result.error) throw _withErrorContext(result.error, "Failed to update user role");
+  return { ok: true };
+}
+
+async function _setBanStatus(db, email, banned) {
+  var result = await db.from("users").update({ status: banned ? "Banned" : "Active" }).eq("email", String(email || "").toLowerCase()).select("*").maybeSingle();
+  if (result.error) throw _withErrorContext(result.error, "Failed to update user status");
+  return { ok: true };
 }
 
 function defaultErr(e) {
@@ -569,24 +1101,30 @@ function uploadFileToField(input, targetId, statusId, previewId, label) {
   var preview = previewId ? document.getElementById(previewId) : null;
   var target = document.getElementById(targetId);
   if (status) status.textContent = "Uploading…";
-  var reader = new FileReader();
-  reader.onload = function(e) {
-    var base64 = e.target.result.split(",")[1];
-    apiPost("uploadFile", { filename: file.name, mimeType: file.type, data: base64 }, function(res) {
-      if (target) target.value = res.url;
+  var bucket = _db().storage.from(SUPABASE_STORAGE_BUCKET);
+  var safeName = String(file.name || "file").replace(/[^a-zA-Z0-9._-]+/g, "_");
+  var path = (label || "upload").toLowerCase().replace(/[^a-z0-9]+/g, "-") + "/" + Date.now() + "-" + safeName;
+  bucket.upload(path, file, { upsert: true, contentType: file.type })
+    .then(function(result) {
+      if (result.error) throw result.error;
+      return bucket.getPublicUrl(path);
+    })
+    .then(function(result) {
+      var url = result.data && result.data.publicUrl;
+      if (!url) throw new Error("Could not resolve public URL for uploaded file.");
+      if (target) target.value = url;
       if (preview && file.type.indexOf("image/") === 0) {
-        preview.src = res.url;
+        preview.src = url;
         preview.style.display = "block";
       }
       if (status) {
         status.textContent = (label || "File") + " uploaded";
         setTimeout(function(){ if (status) status.textContent = ""; }, 2600);
       }
-    }, function(err) {
+    })
+    .catch(function(err) {
       if (status) status.textContent = "Upload failed: " + (err.message || "unknown error");
     });
-  };
-  reader.readAsDataURL(file);
 }
 
 function renderPagination(key, total, offset, onPage) {
@@ -700,6 +1238,8 @@ function postCard(p) {
 function renderLogin(errMsg) {
   document.getElementById("site-header").classList.add("hidden");
   document.getElementById("site-footer").classList.add("hidden");
+  var cfg = _checkSupabaseConfig();
+  var cfgMsg = cfg.ok ? "" : ("Supabase not configured: " + cfg.message + " Update SUPABASE_URL and SUPABASE_ANON_KEY in index.html.");
   document.getElementById("app").innerHTML =
     '<div style="background:var(--primary);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px">' +
     '<div style="width:100%;max-width:420px">' +
@@ -711,7 +1251,7 @@ function renderLogin(errMsg) {
     '<div style="background:#fff;border-radius:14px;padding:34px;box-shadow:0 20px 60px rgba(0,0,0,.25)">' +
     '<h2 style="text-align:center;margin-bottom:8px;color:var(--text)">Welcome</h2>' +
     '<p style="text-align:center;color:var(--muted);font-size:.88rem;margin-bottom:22px">Only <strong>@hyd.silveroaks.co.in</strong> accounts are allowed.</p>' +
-    (errMsg ? '<div class="alert alert-danger">⚠ '+esc(errMsg)+'</div>' : '<div class="alert alert-info" style="justify-content:center">🔐 Click below to sign in with your school account.</div>') +
+    (errMsg || cfgMsg ? '<div class="alert alert-danger">⚠ '+esc(errMsg || cfgMsg)+'</div>' : '<div class="alert alert-info" style="justify-content:center">🔐 Click below to sign in with your school account.</div>') +
     '<div id="g_signin_btn" style="display:flex;justify-content:center;margin-top:18px"></div>' +
     '</div></div></div>';
 
