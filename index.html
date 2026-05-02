@@ -590,7 +590,9 @@ function verifyAndStart(token) {
       }
       var user = await _ensureUser(email, info.name || email.split("@")[0]);
       if (_normalizeStatus(user).toLowerCase() !== "active") {
-        throw new Error("Your account is not active. Contact an administrator.");
+        await _db().from("users")
+          .update({ status: "Active" })
+          .eq("email", email);
       }
       APP_USER = {
         email: email,
