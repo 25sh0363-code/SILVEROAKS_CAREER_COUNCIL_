@@ -456,6 +456,26 @@ function _normalizeStatus(row) {
   return String(row && row.status || "");
 }
 
+function _youtubeEmbed(url) {
+  if (!url) return "";
+  var m = url.match(/[?&]v=([^&]+)/);
+  if (m) return "https://www.youtube.com/embed/" + m[1];
+  m = url.match(/youtu\.be\/([^?]+)/);
+  if (m) return "https://www.youtube.com/embed/" + m[1];
+  m = url.match(/embed\/([^?]+)/);
+  if (m) return "https://www.youtube.com/embed/" + m[1];
+  return "";
+}
+
+function _pdfDownload(url) {
+  if (!url) return "";
+  var m = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+  if (m) return "https://drive.google.com/uc?export=download&id=" + m[1];
+  m = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+  if (m) return "https://drive.google.com/uc?export=download&id=" + m[1];
+  return url;
+}
+
 function _withErrorContext(err, context) {
   var msg = err && err.message ? err.message : String(err || "Unknown error");
   return new Error(context ? (context + ": " + msg) : msg);
@@ -845,6 +865,8 @@ async function _loadCourses(db, params) {
 async function _loadCourse(db, id) {
   var row = await _selectById("courses", id, _toCourse);
   if (!row || row.Status !== "Published") throw new Error("Not found");
+  row._embedUrl = _youtubeEmbed(row.YouTubeURL);
+  row._downloadUrl = _pdfDownload(row.PDFLink);
   return row;
 }
 
@@ -857,6 +879,7 @@ async function _loadPosts(db, params) {
 async function _loadPost(db, id) {
   var row = await _selectById("blogs", id, _toPost);
   if (!row || row.Status !== "Published") throw new Error("Not found");
+  row._downloadUrl = _pdfDownload(row.PDFLink);
   return row;
 }
 
@@ -869,6 +892,8 @@ async function _loadReferences(db, params) {
 async function _loadReference(db, id) {
   var row = await _selectById("reference_materials", id, _toReference);
   if (!row || row.Status !== "Published") throw new Error("Not found");
+  row._embedUrl = _youtubeEmbed(row.YouTubeURL);
+  row._downloadUrl = _pdfDownload(row.PDFLink);
   return row;
 }
 
@@ -881,6 +906,8 @@ async function _loadCareerLabs(db, params) {
 async function _loadCareerLab(db, id) {
   var row = await _selectById("career_labs", id, _toCareerLab);
   if (!row || row.Status !== "Published") throw new Error("Not found");
+  row._embedUrl = _youtubeEmbed(row.YouTubeURL);
+  row._downloadUrl = _pdfDownload(row.PDFLink);
   return row;
 }
 
