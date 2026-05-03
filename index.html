@@ -206,12 +206,12 @@ textarea.form-control{min-height:110px;resize:vertical}
     </button>
     <div class="nav-collapse" id="nav-collapse">
       <ul class="nav-links" id="nav-links">
-        <li><a href="#" onclick="event.preventDefault();route('home')" data-page="home">Home</a></li>
-        <li><a href="#" onclick="event.preventDefault();route('courses')" data-page="courses">Courses</a></li>
-        <li><a href="#" onclick="event.preventDefault();route('blog')" data-page="blog">Blog</a></li>
-        <li><a href="#" onclick="event.preventDefault();route('references')" data-page="references">References</a></li>
-        <li><a href="#" onclick="event.preventDefault();route('career-lab')" data-page="career-lab">Career Lab</a></li>
-        <li id="nav-staff" class="hidden"><a href="#" onclick="event.preventDefault();route('staff')" data-page="staff" style="color:#f0b429">Staff</a></li>
+        <li><a href="javascript:void(0)" onclick="route('home');return false;" data-page="home">Home</a></li>
+        <li><a href="javascript:void(0)" onclick="route('courses');return false;" data-page="courses">Courses</a></li>
+        <li><a href="javascript:void(0)" onclick="route('blog');return false;" data-page="blog">Blog</a></li>
+        <li><a href="javascript:void(0)" onclick="route('references');return false;" data-page="references">References</a></li>
+        <li><a href="javascript:void(0)" onclick="route('career-lab');return false;" data-page="career-lab">Career Lab</a></li>
+        <li id="nav-staff" class="hidden"><a href="javascript:void(0)" onclick="route('staff');return false;" data-page="staff" style="color:#f0b429">Staff</a></li>
       </ul>
       <div class="nav-user" id="nav-user"></div>
     </div>
