@@ -99,14 +99,7 @@ Open `index.html` and replace these placeholders:
 
 The anon key is the only key the browser needs. Do not put the service role key in the frontend.
 
-Main page entry files:
-
-- `index.html` (home)
-- `courses.html`
-- `blog.html`
-- `references.html`
-- `career-lab.html`
-- `staff.html`
+This app runs from a single frontend file: `index.html`.
 
 ## 4. Set permissions
 
