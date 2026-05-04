@@ -46,35 +46,49 @@ p{margin-bottom:1rem}
 .mt-2{margin-top:16px}.mt-3{margin-top:24px}.mb-2{margin-bottom:16px}.mb-3{margin-bottom:24px}
 .hidden{display:none!important}
 
-.site-header{background:rgba(255,255,255,.92);backdrop-filter:blur(16px);border-bottom:1px solid rgba(231,225,218,.92);position:sticky;top:0;z-index:999;box-shadow:0 8px 24px rgba(17,24,39,.05)}
-.nav-inner{display:flex;align-items:center;justify-content:space-between;padding:0 20px;max-width:1100px;margin:0 auto;height:72px}
-.nav-brand{color:var(--primary);font-family:var(--font-h);font-size:1.2rem;font-weight:400;cursor:pointer;display:flex;align-items:center;gap:8px;user-select:none;letter-spacing:-.01em}
-.nav-links{display:flex;gap:7px;list-style:none}
-.nav-links a{color:#5e6673;padding:9px 14px;border-radius:10px;font-size:.95rem;font-weight:600;letter-spacing:.01em;transition:var(--t);cursor:pointer;border:1px solid transparent}
-.nav-links a:hover,.nav-links a.active{background:#fff;color:var(--primary);border-color:rgba(182,30,52,.18);box-shadow:0 4px 14px rgba(17,24,39,.05);text-decoration:none}
-.nav-user{color:var(--muted);display:flex;align-items:center;gap:10px}
-.role-pill{background:var(--primary);color:#fff;padding:7px 14px;border-radius:999px;font-size:.86rem;font-weight:700;letter-spacing:.02em;line-height:1}
-.profile-btn{width:40px;height:40px;border-radius:999px;border:1px solid rgba(182,30,52,.22);background:linear-gradient(180deg,#fdf2f5,#f5e8ec);color:var(--primary);display:inline-flex;align-items:center;justify-content:center;cursor:pointer;transition:var(--t)}
-.profile-btn:hover{transform:translateY(-1px);box-shadow:0 8px 18px rgba(182,30,52,.16)}
-.logout-btn{height:40px;padding:0 15px;border-radius:12px;border:1px solid rgba(182,30,52,.45);background:#fff;color:var(--primary);font:inherit;font-size:.95rem;font-weight:700;display:inline-flex;align-items:center;gap:8px;cursor:pointer;transition:var(--t)}
-.logout-btn:hover{background:var(--primary-light)}
-.hamburger{display:none;background:none;border:none;cursor:pointer;flex-direction:column;gap:5px;padding:4px}
-.hamburger span{display:block;width:24px;height:2px;background:var(--text);border-radius:2px}
+.site-header{background:transparent;backdrop-filter:none;border:none;position:sticky;top:0;z-index:999;box-shadow:none;padding:20px;display:flex;align-items:center;justify-content:space-between}
+.nav-inner{display:flex;align-items:center;justify-content:center;gap:0;max-width:100%;margin:0 auto;height:auto}
+.nav-brand{color:var(--primary);font-family:var(--font-h);font-size:1rem;font-weight:400;cursor:pointer;display:flex;align-items:center;gap:8px;user-select:none;letter-spacing:-.01em;position:absolute;left:20px}
+.nav-links{display:flex;gap:0;list-style:none;background:rgba(26,32,44,.93);padding:16px;border-radius:24px;box-shadow:0 12px 40px rgba(0,0,0,.15);position:relative}
+.nav-links a{color:rgba(255,255,255,.65);padding:12px 16px;border-radius:16px;font-size:.9rem;font-weight:500;letter-spacing:.02em;transition:var(--t);cursor:pointer;border:none;position:relative;display:flex;align-items:center;justify-content:center;gap:8px;white-space:nowrap}
+.nav-links a:hover{color:#fff}
+.nav-links a.active{color:#fff;font-weight:600}
+.nav-links a.active::after{content:'';position:absolute;inset:-8px;background:var(--gold);border-radius:20px;z-index:-1;box-shadow:0 8px 24px rgba(198,154,58,.25)}
+.nav-user{color:var(--muted);display:flex;align-items:center;gap:10px;position:absolute;right:20px}
+.role-pill{background:var(--primary);color:#fff;padding:7px 14px;border-radius:999px;font-size:.75rem;font-weight:700;letter-spacing:.02em;line-height:1}
+.profile-btn{width:40px;height:40px;border-radius:999px;border:2px solid var(--gold);background:linear-gradient(135deg,#16181d,#2b2f39);color:var(--gold);display:inline-flex;align-items:center;justify-content:center;cursor:pointer;transition:var(--t)}
+.profile-btn:hover{transform:scale(1.08);box-shadow:0 8px 24px rgba(198,154,58,.25)}
+.logout-btn{height:40px;padding:0 14px;border-radius:999px;border:1.5px solid var(--gold);background:transparent;color:var(--gold);font:inherit;font-size:.82rem;font-weight:600;display:inline-flex;align-items:center;gap:6px;cursor:pointer;transition:var(--t)}
+.logout-btn:hover{background:var(--gold);color:#16181d}
+.hamburger{display:none;background:none;border:none;cursor:pointer;flex-direction:column;gap:5px;padding:4px;position:absolute;right:20px}
+.hamburger span{display:block;width:24px;height:2px;background:#fff;border-radius:2px}
+@media(max-width:1024px){
+  .nav-links{padding:12px;gap:2px}
+  .nav-links a{padding:10px 12px;font-size:.85rem}
+  .nav-links a svg{width:18px;height:18px}
+}
 @media(max-width:768px){
   .hamburger{display:flex}
-  .nav-collapse{display:none;position:absolute;top:72px;left:0;right:0;background:#fff;border-bottom:1px solid var(--border);padding:12px;flex-direction:column;box-shadow:0 12px 32px rgba(0,0,0,.1)}
+  .nav-brand{position:relative;left:0}
+  .nav-user{position:relative;right:0;gap:6px}
+  .site-header{padding:14px}
+  .nav-collapse{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.98);padding:80px 16px 16px;flex-direction:column;z-index:999;overflow-y:auto}
   .nav-collapse.open{display:flex}
-  .nav-links{flex-direction:column;width:100%}
-  .nav-links a{padding:10px 16px;display:block;color:var(--text)}
-  .nav-user{padding:10px 16px;color:var(--muted);justify-content:flex-start}
+  .nav-links{flex-direction:column;width:100%;background:transparent;box-shadow:none;padding:0;gap:8px;border-radius:0}
+  .nav-links a{border-radius:12px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);justify-content:flex-start;padding:14px 16px}
+  .nav-links a.active::after{inset:-4px}
+  .nav-links a:hover{background:rgba(255,255,255,.15)}
+  .nav-user{position:relative;right:0;margin-top:auto;padding-top:16px;border-top:1px solid rgba(255,255,255,.1);gap:8px}
+  .profile-btn,.logout-btn{height:36px;font-size:.8rem}
 }
 
-.hero{background:linear-gradient(135deg,#851729 0%,#b61e34 44%,#de5e4e 100%);color:#fff;padding:56px 20px 40px;text-align:left;position:relative;overflow:hidden}
+.hero{background:linear-gradient(135deg,#851729 0%,#b61e34 44%,#de5e4e 100%);color:#fff;padding:48px 20px 40px;text-align:left;position:relative;overflow:hidden;margin-top:-20px;padding-top:68px}
 .hero::before{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg width='500' height='500' viewBox='0 0 500 500' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='390' cy='120' r='260' fill='rgba(255,255,255,0.05)'/%3E%3Ccircle cx='80' cy='410' r='220' fill='rgba(255,255,255,0.04)'/%3E%3C/svg%3E") no-repeat center/cover;pointer-events:none}
 .hero h1{color:#fff;margin-bottom:12px;font-size:clamp(1.6rem,4vw,3rem);font-weight:400;letter-spacing:-.02em}
 .hero h1::after{display:none}
 .hero p{color:rgba(255,255,255,.82);font-size:1.05rem;max-width:620px;margin:0 0 28px;font-weight:400;letter-spacing:.01em}
 .hero-img{width:100%;max-width:920px;margin:0 auto 40px;border-radius:24px;object-fit:cover;max-height:360px;box-shadow:0 28px 70px rgba(0,0,0,.32),0 0 0 1px rgba(255,255,255,.14);display:block}
+@media(max-width:768px){.hero{padding:40px 16px 32px;margin-top:-16px;padding-top:56px}.hero h1{font-size:1.5rem}.hero p{font-size:.95rem}}
 
 .card{background:rgba(255,255,255,.92);border:1px solid rgba(231,225,218,.92);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;display:flex;flex-direction:column;transition:transform var(--t),box-shadow var(--t),border-color var(--t)}
 .card:hover{transform:translateY(-4px);box-shadow:var(--shadow-h);border-color:rgba(182,30,52,.12)}
@@ -185,7 +199,11 @@ textarea.form-control{min-height:110px;resize:vertical}
 .site-footer strong{color:#fff}
 #nprogress{height:3px;background:var(--primary);position:fixed;top:0;left:0;z-index:99999;transition:width .25s ease,opacity .3s ease;width:0;opacity:1}
 
-@media(max-width:640px){.section{padding:30px 0}.hero{padding:48px 16px}.hero h1{font-size:1.6rem}.panel{margin:36px 16px;padding:26px 18px}.actions{flex-wrap:wrap}#toast-box{right:12px;left:12px;bottom:12px}.toast{max-width:100%}}
+@media(max-width:640px){.section{padding:30px 0}.hero{padding:48px 16px}.hero h1{font-size:1.6rem}.panel{margin:36px 16px;padding:26px 18px}.actions{flex-wrap:wrap}#toast-box{right:12px;left:12px;bottom:12px}.toast{max-width:100%}
+.stat-grid{grid-template-columns:1fr!important}}
+
+.library-container{display:grid;grid-template-columns:repeat(auto-fit,minmax(350px,1fr));gap:20px}
+@media(max-width:768px){.library-container{grid-template-columns:1fr}.data-table{font-size:.75rem}.data-table th,.data-table td{padding:8px 10px}}
 </style>
 </head>
 <body>
@@ -200,18 +218,18 @@ textarea.form-control{min-height:110px;resize:vertical}
 
 <header class="site-header hidden" id="site-header">
   <div class="nav-inner">
-    <div class="nav-brand" onclick="route('home')"><img src="unnamed.png" height="30" style="height:30px;width:auto;vertical-align:middle;border-radius:5px;margin-right:4px" alt="Silver Oaks Career Lab" onerror="this.style.display='none'"> <span id="nav-appname">Career Lab</span></div>
+    <div class="nav-brand" onclick="route('home')" title="Career Lab"><img src="unnamed.png" height="28" style="height:28px;width:auto;vertical-align:middle;border-radius:4px;margin-right:3px" alt="Silver Oaks Career Lab" onerror="this.style.display='none'"> <span id="nav-appname" style="font-size:.95rem">Lab</span></div>
     <button class="hamburger" onclick="toggleNav()" aria-label="Menu">
       <span></span><span></span><span></span>
     </button>
     <div class="nav-collapse" id="nav-collapse">
       <ul class="nav-links" id="nav-links">
-        <li><a href="javascript:void(0)" onclick="route('home');return false;" data-page="home">Home</a></li>
-        <li><a href="javascript:void(0)" onclick="route('courses');return false;" data-page="courses">Courses</a></li>
-        <li><a href="javascript:void(0)" onclick="route('blog');return false;" data-page="blog">Blog</a></li>
-        <li><a href="javascript:void(0)" onclick="route('references');return false;" data-page="references">References</a></li>
-        <li><a href="javascript:void(0)" onclick="route('career-lab');return false;" data-page="career-lab">Career Lab</a></li>
-        <li id="nav-staff" class="hidden"><a href="javascript:void(0)" onclick="route('staff');return false;" data-page="staff" style="color:#f0b429">Staff</a></li>
+        <li><a href="javascript:void(0)" onclick="route('home');return false;" data-page="home" title="Home"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 10L12 3L21 10V19C21 20.1046 20.1046 21 19 21H5C3.89543 21 3 20.1046 3 19V10Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 21V13H15V21" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Home</span></a></li>
+        <li><a href="javascript:void(0)" onclick="route('courses');return false;" data-page="courses" title="Courses"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 6C4 4.89543 4.89543 4 6 4H18C19.1046 4 20 4.89543 20 6V18C20 19.1046 19.1046 20 18 20H6C4.89543 20 4 19.1046 4 18V6Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 14H15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M9 10H15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><span>Courses</span></a></li>
+        <li><a href="javascript:void(0)" onclick="route('blog');return false;" data-page="blog" title="Blog"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 3H21V10H3V3Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 14H15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M3 18H21" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><span>Blog</span></a></li>
+        <li><a href="javascript:void(0)" onclick="route('references');return false;" data-page="references" title="References"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9 4H5C4.44772 4 4 4.44772 4 5V19C4 19.5523 4.44772 20 5 20H19C19.5523 20 20 19.5523 20 19V13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 9H15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M9 13H13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><span>References</span></a></li>
+        <li><a href="javascript:void(0)" onclick="route('career-lab');return false;" data-page="career-lab" title="Career Lab"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="1.8"/><path d="M4 20C4 16.6863 7.58172 14 12 14C16.4183 14 20 16.6863 20 20" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><span>Lab</span></a></li>
+        <li id="nav-staff" class="hidden"><a href="javascript:void(0)" onclick="route('staff');return false;" data-page="staff" title="Staff" style="color:var(--gold)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 11C13.6569 11 15 9.65685 15 8C15 6.34315 13.6569 5 12 5C10.3431 5 9 6.34315 9 8C9 9.65685 10.3431 11 12 11Z" stroke="currentColor" stroke-width="1.8"/><path d="M3 20C3 16.6863 6.58172 14 12 14C17.4183 14 21 16.6863 21 20" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><span>Staff</span></a></li>
       </ul>
       <div class="nav-user" id="nav-user"></div>
     </div>
@@ -1913,12 +1931,12 @@ function pageCareerLab(id) {
 
 function pageStaff() {
   document.getElementById("app").innerHTML =
-    '<div class="page-header"><div class="container"><h1>⚙ Staff Dashboard</h1><p>Manage courses, blog posts, users and statistics.</p></div></div>' +
-    '<section class="section"><div class="container">' +
-    '<div class="stat-grid" id="stat-grid"><div class="spinner"></div></div>' +
-    '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(360px,1fr));gap:20px;margin-bottom:20px" id="staff-tables"><div class="spinner"></div></div>' +
-    '<div class="card mb-3" id="users-table-wrap"><div class="card-body"><div class="spinner"></div></div></div>' +
-    '<div class="card mt-3" style="padding:20px"><h3 style="margin-bottom:12px">📊 Category Breakdown</h3><canvas id="cat-chart" height="80"></canvas></div>' +
+    '<div style="background:linear-gradient(135deg,#16181d 0%,#2b2f39 60%,#3b2025 100%);color:#fff;padding:48px 20px;position:relative;overflow:hidden">' +
+    '<div style="position:absolute;inset:0;background:radial-gradient(circle at 80% 20%, rgba(198,154,58,.12), transparent 24%), radial-gradient(circle at 20% 80%, rgba(182,30,52,.12), transparent 28%);pointer-events:none"></div>' +
+    '<div class="container"><h1 style="color:#fff;margin-bottom:6px;font-weight:400;font-size:2rem">📊 Content Manager</h1><p style="color:rgba(255,255,255,.72);margin:0;font-size:.95rem">Organize and manage your content libraries</p></div></div>' +
+    '<section class="section"><div class="container" style="max-width:1200px">' +
+    '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:36px" id="stat-grid"><div class="spinner"></div></div>' +
+    '<div style="margin-bottom:32px" id="staff-library"></div>' +
     '</div></section>';
 
   Promise.all([
@@ -1936,75 +1954,122 @@ function pageStaff() {
     var labs = results[4];
     var users = results[5];
 
+    // Stats grid
     document.getElementById("stat-grid").innerHTML = [
-      {num:s.totalCourses,        label:"Total Courses"},
-      {num:s.publishedCourses,     label:"Published Courses"},
-      {num:s.totalBlogs,           label:"Total Posts"},
-      {num:s.publishedBlogs,       label:"Published Posts"},
-      {num:s.totalReferences,      label:"Total References"},
-      {num:s.publishedReferences,  label:"Published References"},
-      {num:s.totalCareerLabs,      label:"Total Career Labs"},
-      {num:s.publishedCareerLabs,  label:"Published Career Labs"},
-      {num:s.activeUsers,          label:"Active Users"},
+      {num:s.totalCourses,        label:"Courses",published:s.publishedCourses},
+      {num:s.totalBlogs,          label:"Posts",published:s.publishedBlogs},
+      {num:s.totalReferences,     label:"References",published:s.publishedReferences},
+      {num:s.totalCareerLabs,     label:"Career Labs",published:s.publishedCareerLabs},
+      {num:s.activeUsers,         label:"Active Users",published:"—"}
     ].map(function(x){
-      return '<div class="stat-card"><div class="stat-num">'+esc(x.num)+'</div><div class="stat-label">'+esc(x.label)+'</div></div>';
+      return '<div style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:18px;text-align:center;backdrop-filter:blur(8px)">' +
+             '<div style="font-size:1.8rem;font-weight:700;color:var(--gold);margin-bottom:3px">'+esc(x.num)+'</div>' +
+             '<div style="color:rgba(255,255,255,.6);font-size:.82rem;font-weight:500">'+esc(x.label)+'</div>' +
+             (x.published && x.published !== "—" ? '<div style="color:rgba(198,154,58,.8);font-size:.75rem;margin-top:4px">'+esc(x.published)+' published</div>' : '') +
+             '</div>';
     }).join("");
 
-    if (s.categoryData) {
-      var canvas = document.getElementById("cat-chart");
-      if (canvas) drawBarChart(canvas, s.categoryData);
-    }
-    document.getElementById("staff-tables").innerHTML =
-      '<div class="card"><div class="card-body">' +
-      '<div class="flex-between mb-2"><h3>📚 Courses</h3><button class="btn btn-primary btn-sm" onclick="route(\'staff-course-form\',{course:null})">+ Add Course</button></div>' +
-      buildAdminTable(courses,
-        ["Title","Category","Grade","Status"],
-        function(c){ return [esc(c.Title), esc(c.Category||""), esc(c.Grade||""), statusBadge(c.Status)]; },
-        function(c){ return '<button class="btn btn-primary btn-sm" onclick="_editCourse(\''+esc(c.ID)+'\')">Edit</button> <button class="btn btn-danger btn-sm" onclick="_delCourse(\''+esc(c.ID)+'\')">Delete</button>'; }
-      )+'</div></div>' +
-      '<div class="card"><div class="card-body">' +
-      '<div class="flex-between mb-2"><h3>✍️ Blog Posts</h3><button class="btn btn-primary btn-sm" onclick="route(\'staff-blog-form\',{post:null})">+ Add Post</button></div>' +
-      buildAdminTable(posts,
-        ["Title","Status","Date"],
-        function(p){ return [esc(p.Title), statusBadge(p.Status), esc(fmtDate(p.CreatedDate))]; },
-        function(p){ return '<button class="btn btn-primary btn-sm" onclick="_editPost(\''+esc(p.ID)+'\')">Edit</button> <button class="btn btn-danger btn-sm" onclick="_delPost(\''+esc(p.ID)+'\')">Delete</button>'; }
-      )+'</div></div>' +
-      '<div class="card"><div class="card-body">' +
-      '<div class="flex-between mb-2"><h3>📎 References</h3><button class="btn btn-primary btn-sm" onclick="route(\'staff-reference-form\',{ref:null})">+ Add Reference</button></div>' +
-      buildAdminTable(refs,
-        ["Title","Category","Status"],
-        function(r){ return [esc(r.Title), esc(r.Category||""), statusBadge(r.Status)]; },
-        function(r){ return '<button class="btn btn-primary btn-sm" onclick="_editReference(\''+esc(r.ID)+'\')">Edit</button> <button class="btn btn-danger btn-sm" onclick="_delReference(\''+esc(r.ID)+'\')">Delete</button>'; }
-      )+'</div></div>' +
-      '<div class="card"><div class="card-body">' +
-      '<div class="flex-between mb-2"><h3>🧠 Career Laboratory</h3><button class="btn btn-primary btn-sm" onclick="route(\'staff-careerlab-form\',{lab:null})">+ Add Lab Entry</button></div>' +
-      buildAdminTable(labs,
-        ["Title","Student","Status"],
-        function(l){ return [esc(l.Title), esc(l.Student||""), statusBadge(l.Status)]; },
-        function(l){ return '<button class="btn btn-primary btn-sm" onclick="_editCareerLab(\''+esc(l.ID)+'\')">Edit</button> <button class="btn btn-danger btn-sm" onclick="_delCareerLab(\''+esc(l.ID)+'\')">Delete</button>'; }
-      )+'</div></div>';
+    // Libraries
+    var libraries = [
+      {
+        icon: "📚",
+        title: "Courses",
+        action: "route('staff-course-form',{course:null})",
+        items: courses,
+        getTitle: function(item) { return item.Title; },
+        getDesc: function(item) { return (item.Category ? item.Category + " • " : "") + (item.Grade ? "Grade " + item.Grade : ""); },
+        getStatus: function(item) { return item.Status; },
+        onEdit: function(item) { return "_editCourse('" + esc(item.ID) + "')"; },
+        onDelete: function(item) { return "_delCourse('" + esc(item.ID) + "')"; }
+      },
+      {
+        icon: "✍️",
+        title: "Blog Posts",
+        action: "route('staff-blog-form',{post:null})",
+        items: posts,
+        getTitle: function(item) { return item.Title; },
+        getDesc: function(item) { return fmtDate(item.CreatedDate); },
+        getStatus: function(item) { return item.Status; },
+        onEdit: function(item) { return "_editPost('" + esc(item.ID) + "')"; },
+        onDelete: function(item) { return "_delPost('" + esc(item.ID) + "')"; }
+      },
+      {
+        icon: "📎",
+        title: "References",
+        action: "route('staff-reference-form',{ref:null})",
+        items: refs,
+        getTitle: function(item) { return item.Title; },
+        getDesc: function(item) { return item.Category || "Uncategorized"; },
+        getStatus: function(item) { return item.Status; },
+        onEdit: function(item) { return "_editReference('" + esc(item.ID) + "')"; },
+        onDelete: function(item) { return "_delReference('" + esc(item.ID) + "')"; }
+      },
+      {
+        icon: "🧠",
+        title: "Career Laboratory",
+        action: "route('staff-careerlab-form',{lab:null})",
+        items: labs,
+        getTitle: function(item) { return item.Title; },
+        getDesc: function(item) { return (item.Student ? item.Student + " • " : "") + (item.Mentor ? "Mentor: " + item.Mentor : ""); },
+        getStatus: function(item) { return item.Status; },
+        onEdit: function(item) { return "_editCareerLab('" + esc(item.ID) + "')"; },
+        onDelete: function(item) { return "_delCareerLab('" + esc(item.ID) + "')"; }
+      }
+    ];
 
-    var wrap = document.getElementById("users-table-wrap");
-    if (!wrap) return;
-    var roles = ["Student","Editor","Admin"];
-    var rows  = users && users.length
-      ? '<div style="overflow-x:auto"><table class="data-table"><thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th>Action</th></tr></thead><tbody>' +
+    var libraryHtml = libraries.map(function(lib) {
+      var count = lib.items.length;
+      var published = lib.items.filter(function(i){ return lib.getStatus(i) === "Published"; }).length;
+      var itemsHtml = lib.items.length ? 
+        lib.items.map(function(item) {
+          return '<div style="display:flex;align-items:start;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid rgba(231,225,218,.5)">' +
+                 '<div style="flex:1;min-width:0">' +
+                 '<div style="font-weight:500;color:var(--text);margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+esc(lib.getTitle(item))+'</div>' +
+                 '<div style="font-size:.8rem;color:var(--muted)">'+esc(lib.getDesc(item))+'</div>' +
+                 '</div>' +
+                 '<div style="display:flex;gap:6px;flex-shrink:0">' +
+                 '<span style="background:'+( lib.getStatus(item) === "Published" ? "var(--success)" : "var(--muted)")+';color:#fff;padding:3px 8px;border-radius:4px;font-size:.7rem;font-weight:600">'+esc(lib.getStatus(item))+'</span>' +
+                 '<button class="btn btn-ghost btn-sm" style="font-size:.75rem;padding:4px 8px" onclick="'+lib.onEdit(item)+'">✏️</button>' +
+                 '<button class="btn btn-danger btn-sm" style="font-size:.75rem;padding:4px 8px" onclick="'+lib.onDelete(item)+'">🗑️</button>' +
+                 '</div>' +
+                 '</div>';
+        }).join("") :
+        '<div style="padding:20px;text-align:center;color:var(--muted);font-size:.9rem">📭 No items yet</div>';
+
+      return '<div style="background:rgba(255,255,255,.95);border:1px solid rgba(231,225,218,.92);border-radius:16px;overflow:hidden;margin-bottom:18px">' +
+             '<div style="background:linear-gradient(135deg,rgba(182,30,52,.05),rgba(198,154,58,.05));padding:16px;border-bottom:1px solid rgba(231,225,218,.5);display:flex;align-items:center;justify-content:space-between;gap:12px">' +
+             '<div><h3 style="margin:0 0 3px;font-size:1.05rem">'+esc(lib.icon)+' '+esc(lib.title)+'</h3><p style="margin:0;color:var(--muted);font-size:.82rem">'+esc(count)+' total • '+esc(published)+' published</p></div>' +
+             '<button class="btn btn-primary" onclick="'+lib.action+'" style="flex-shrink:0">+ Add</button>' +
+             '</div>' +
+             '<div style="max-height:400px;overflow-y:auto;padding:12px 14px">' + itemsHtml + '</div>' +
+             '</div>';
+    }).join("");
+
+    // User management
+    var usersCard = '<div style="background:rgba(255,255,255,.95);border:1px solid rgba(231,225,218,.92);border-radius:16px;overflow:hidden;margin-top:32px">' +
+      '<div style="background:linear-gradient(135deg,rgba(182,30,52,.05),rgba(198,154,58,.05));padding:16px;border-bottom:1px solid rgba(231,225,218,.5)">' +
+      '<h3 style="margin:0;font-size:1.05rem">👥 User Management</h3>' +
+      '</div>';
+
+    if (users && users.length) {
+      var roles = ["Student","Editor","Admin"];
+      usersCard += '<div style="overflow-x:auto"><table class="data-table"><thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Actions</th></tr></thead><tbody>' +
         users.map(function(u) {
-          var isSelf   = u.Email === APP_USER.email;
-          var sel = '<select class="form-control" style="padding:4px 8px;font-size:.82rem;width:auto" id="role-'+esc(u.Email)+'">'+
+          var isSelf = u.Email === APP_USER.email;
+          var sel = '<select class="form-control" style="padding:5px 8px;font-size:.82rem;width:auto;border-radius:6px" id="role-'+esc(u.Email)+'">'+
             roles.map(function(r){ return '<option value="'+r+'"'+(u.Role===r?' selected':'')+'>'+r+'</option>'; }).join("") +
             '</select>';
-          var deleteBtn = isSelf ? '' : '<button class="btn btn-danger btn-sm" onclick="_deleteUser(\''+esc(u.Email)+'\')">Delete User</button>';
-          return '<tr><td>'+esc(u.Name||"—")+'</td><td style="font-size:.82rem">'+esc(u.Email)+'</td><td>'+sel+'</td>'+
-                 '<td><span style="color:var(--success)">Active</span></td>'+
-                 '<td><div class="actions"><button class="btn btn-primary btn-sm" onclick="_updateRole(\''+esc(u.Email)+'\')">Save</button>'+deleteBtn+'</div></td></tr>';
+          var deleteBtn = isSelf ? '' : '<button class="btn btn-danger btn-sm" style="font-size:.75rem" onclick="_deleteUser(\''+esc(u.Email)+'\')">Delete</button>';
+          return '<tr><td style="font-weight:500">'+esc(u.Name||"—")+'</td><td style="font-size:.82rem;color:var(--muted)">'+esc(u.Email)+'</td><td>'+sel+'</td>'+
+                 '<td><div class="actions"><button class="btn btn-primary btn-sm" style="font-size:.75rem" onclick="_updateRole(\''+esc(u.Email)+'\')">Save</button>'+deleteBtn+'</div></td></tr>';
         }).join("") +
-        '</tbody></table></div>'
-      : '<div class="empty"><div class="empty-icon">👤</div><p>No users yet.</p></div>';
-    wrap.innerHTML =
-      '<div class="card-body"><div class="flex-between mb-2"><h3>👥 User Management</h3>' +
-      '<small style="color:var(--muted)">Change a user\'s role and press Save. Students can only view; Editors can add/edit content; Admins have full access.</small>' +
-      '</div>' + rows + '</div>';
+        '</tbody></table></div>';
+    } else {
+      usersCard += '<div class="empty"><div class="empty-icon">👤</div><p>No users yet.</p></div>';
+    }
+    usersCard += '</div>';
+
+    document.getElementById("staff-library").innerHTML = libraryHtml + usersCard;
   }).catch(defaultErr);
 }
 
