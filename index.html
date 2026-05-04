@@ -46,40 +46,42 @@ p{margin-bottom:1rem}
 .mt-2{margin-top:16px}.mt-3{margin-top:24px}.mb-2{margin-bottom:16px}.mb-3{margin-bottom:24px}
 .hidden{display:none!important}
 
-.site-header{background:transparent;backdrop-filter:none;border:none;position:sticky;top:0;z-index:999;box-shadow:none;padding:20px;display:flex;align-items:center;justify-content:space-between}
-.nav-inner{display:flex;align-items:center;justify-content:center;gap:0;max-width:100%;margin:0 auto;height:auto}
-.nav-brand{color:var(--primary);font-family:var(--font-h);font-size:1rem;font-weight:400;cursor:pointer;display:flex;align-items:center;gap:8px;user-select:none;letter-spacing:-.01em;position:absolute;left:20px}
-.nav-links{display:flex;gap:0;list-style:none;background:rgba(26,32,44,.93);padding:16px;border-radius:24px;box-shadow:0 12px 40px rgba(0,0,0,.15);position:relative}
-.nav-links a{color:rgba(255,255,255,.65);padding:12px 16px;border-radius:16px;font-size:.9rem;font-weight:500;letter-spacing:.02em;transition:var(--t);cursor:pointer;border:none;position:relative;display:flex;align-items:center;justify-content:center;gap:8px;white-space:nowrap}
-.nav-links a:hover{color:#fff}
-.nav-links a.active{color:#fff;font-weight:600}
-.nav-links a.active::after{content:'';position:absolute;inset:-8px;background:var(--gold);border-radius:20px;z-index:-1;box-shadow:0 8px 24px rgba(198,154,58,.25)}
-.nav-user{color:var(--muted);display:flex;align-items:center;gap:10px;position:absolute;right:20px}
-.role-pill{background:var(--primary);color:#fff;padding:7px 14px;border-radius:999px;font-size:.75rem;font-weight:700;letter-spacing:.02em;line-height:1}
-.profile-btn{width:40px;height:40px;border-radius:999px;border:2px solid var(--gold);background:linear-gradient(135deg,#16181d,#2b2f39);color:var(--gold);display:inline-flex;align-items:center;justify-content:center;cursor:pointer;transition:var(--t)}
-.profile-btn:hover{transform:scale(1.08);box-shadow:0 8px 24px rgba(198,154,58,.25)}
-.logout-btn{height:40px;padding:0 14px;border-radius:999px;border:1.5px solid var(--gold);background:transparent;color:var(--gold);font:inherit;font-size:.82rem;font-weight:600;display:inline-flex;align-items:center;gap:6px;cursor:pointer;transition:var(--t)}
-.logout-btn:hover{background:var(--gold);color:#16181d}
-.hamburger{display:none;background:none;border:none;cursor:pointer;flex-direction:column;gap:5px;padding:4px;position:absolute;right:20px}
-.hamburger span{display:block;width:24px;height:2px;background:#fff;border-radius:2px}
+.site-header{background:rgba(248,244,238,.82);backdrop-filter:blur(18px);border-bottom:1px solid rgba(231,225,218,.8);position:sticky;top:0;z-index:999;box-shadow:0 10px 28px rgba(17,24,39,.04);padding:16px 20px}
+.nav-inner{display:flex;align-items:center;justify-content:space-between;gap:16px;max-width:1200px;margin:0 auto;height:auto;position:relative}
+.nav-brand{color:var(--primary);font-family:var(--font-h);font-size:1rem;font-weight:400;cursor:pointer;display:flex;align-items:center;gap:10px;user-select:none;letter-spacing:-.01em;position:relative;z-index:2}
+.nav-links{display:flex;gap:6px;list-style:none;background:rgba(26,32,44,.96);padding:10px;border-radius:999px;box-shadow:0 14px 34px rgba(17,24,39,.12);position:relative;align-items:center}
+.nav-links a{color:rgba(255,255,255,.72);padding:11px 14px;border-radius:999px;font-size:.9rem;font-weight:500;letter-spacing:.01em;transition:var(--t);cursor:pointer;border:none;position:relative;display:flex;align-items:center;justify-content:center;gap:8px;white-space:nowrap;line-height:1}
+.nav-links a svg{width:18px;height:18px;flex-shrink:0}
+.nav-links a:hover{color:#fff;background:rgba(255,255,255,.06)}
+.nav-links a.active{color:#fff;background:rgba(255,255,255,.1);font-weight:600;box-shadow:inset 0 0 0 1px rgba(255,255,255,.08)}
+.nav-links a.active::after{display:none}
+.nav-user{color:var(--muted);display:flex;align-items:center;gap:10px;position:relative;z-index:2}
+.role-pill{background:var(--primary);color:#fff;padding:7px 12px;border-radius:999px;font-size:.74rem;font-weight:700;letter-spacing:.02em;line-height:1}
+.profile-btn{width:40px;height:40px;border-radius:999px;border:1px solid rgba(198,154,58,.5);background:#16181d;color:var(--gold);display:inline-flex;align-items:center;justify-content:center;cursor:pointer;transition:var(--t)}
+.profile-btn:hover{transform:translateY(-1px);box-shadow:0 8px 20px rgba(17,24,39,.14)}
+.logout-btn{height:40px;padding:0 14px;border-radius:999px;border:1px solid rgba(182,30,52,.25);background:#fff;color:var(--primary);font:inherit;font-size:.82rem;font-weight:600;display:inline-flex;align-items:center;gap:6px;cursor:pointer;transition:var(--t)}
+.logout-btn:hover{background:var(--primary-light);border-color:rgba(182,30,52,.34)}
+.hamburger{display:none;background:none;border:none;cursor:pointer;flex-direction:column;gap:5px;padding:4px;position:relative;z-index:2}
+.hamburger span{display:block;width:22px;height:2px;background:#1f2937;border-radius:2px}
 @media(max-width:1024px){
-  .nav-links{padding:12px;gap:2px}
-  .nav-links a{padding:10px 12px;font-size:.85rem}
-  .nav-links a svg{width:18px;height:18px}
+  .nav-links{padding:8px;gap:4px}
+  .nav-links a{padding:10px 12px;font-size:.84rem}
 }
 @media(max-width:768px){
   .hamburger{display:flex}
-  .nav-brand{position:relative;left:0}
-  .nav-user{position:relative;right:0;gap:6px}
-  .site-header{padding:14px}
-  .nav-collapse{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.98);padding:80px 16px 16px;flex-direction:column;z-index:999;overflow-y:auto}
+  .nav-inner{display:grid;grid-template-columns:auto 1fr auto;align-items:center}
+  .nav-brand{justify-self:start}
+  .nav-user{justify-self:end;gap:6px}
+  .site-header{padding:14px 14px 0;border-bottom:none;background:linear-gradient(180deg,rgba(248,244,238,.94),rgba(248,244,238,.88))}
+  .nav-collapse{display:none;position:fixed;left:12px;right:12px;bottom:12px;top:auto;background:rgba(22,24,29,.96);padding:12px;border-radius:24px;box-shadow:0 20px 40px rgba(17,24,39,.22);flex-direction:column;z-index:999;overflow:hidden}
   .nav-collapse.open{display:flex}
-  .nav-links{flex-direction:column;width:100%;background:transparent;box-shadow:none;padding:0;gap:8px;border-radius:0}
-  .nav-links a{border-radius:12px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);justify-content:flex-start;padding:14px 16px}
-  .nav-links a.active::after{inset:-4px}
-  .nav-links a:hover{background:rgba(255,255,255,.15)}
-  .nav-user{position:relative;right:0;margin-top:auto;padding-top:16px;border-top:1px solid rgba(255,255,255,.1);gap:8px}
-  .profile-btn,.logout-btn{height:36px;font-size:.8rem}
+  .nav-links{flex-direction:row;flex-wrap:wrap;width:100%;background:transparent;box-shadow:none;padding:0;gap:8px;border-radius:0;justify-content:space-between}
+  .nav-links li{flex:1 1 calc(50% - 8px)}
+  .nav-links a{width:100%;border-radius:16px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);justify-content:flex-start;padding:13px 14px;color:rgba(255,255,255,.84)}
+  .nav-links a.active{background:rgba(198,154,58,.18);box-shadow:none;border-color:rgba(198,154,58,.18)}
+  .nav-links a:hover{background:rgba(255,255,255,.11)}
+  .nav-user{margin-top:6px;padding-top:10px;border-top:1px solid rgba(255,255,255,.08);justify-content:space-between;width:100%}
+  .profile-btn,.logout-btn{height:36px;font-size:.78rem}
 }
 
 .hero{background:linear-gradient(135deg,#851729 0%,#b61e34 44%,#de5e4e 100%);color:#fff;padding:48px 20px 40px;text-align:left;position:relative;overflow:hidden;margin-top:-20px;padding-top:68px}
@@ -158,6 +160,44 @@ textarea.form-control{min-height:110px;resize:vertical}
 .page-header{background:linear-gradient(135deg,#16181d 0%,#2b2f39 60%,#3b2025 100%);color:#fff;padding:48px 20px;position:relative;overflow:hidden}
 .page-header::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 80% 20%, rgba(198,154,58,.18), transparent 24%), radial-gradient(circle at 20% 80%, rgba(182,30,52,.18), transparent 28%);pointer-events:none}
 .page-header h1{color:#fff;margin-bottom:6px;font-weight:400}.page-header h1::after{display:none}.page-header p{color:rgba(255,255,255,.72);margin:0}
+
+.staff-shell{max-width:1200px;margin:0 auto}
+.staff-hero{background:linear-gradient(135deg,#16181d 0%,#2b2f39 60%,#3b2025 100%);color:#fff;padding:44px 20px;position:relative;overflow:hidden}
+.staff-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 82% 18%, rgba(198,154,58,.16), transparent 24%), radial-gradient(circle at 18% 82%, rgba(182,30,52,.14), transparent 26%);pointer-events:none}
+.staff-hero h1{color:#fff;margin-bottom:8px;font-weight:400;font-size:clamp(1.7rem,3vw,2.35rem)}
+.staff-hero p{margin:0;color:rgba(255,255,255,.74);max-width:640px}
+.staff-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-top:24px}
+.kpi-card{background:rgba(255,255,255,.94);border:1px solid rgba(231,225,218,.92);border-radius:16px;padding:18px;box-shadow:var(--shadow)}
+.kpi-value{font-size:1.8rem;font-weight:700;color:var(--primary);line-height:1}
+.kpi-label{font-size:.8rem;color:var(--muted);margin-top:6px;text-transform:uppercase;letter-spacing:.06em}
+.kpi-meta{font-size:.75rem;color:var(--muted);margin-top:6px}
+.library-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:18px}
+.library-card{background:rgba(255,255,255,.96);border:1px solid rgba(231,225,218,.92);border-radius:18px;overflow:hidden;box-shadow:var(--shadow)}
+.library-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:16px 18px;background:linear-gradient(135deg,rgba(182,30,52,.04),rgba(198,154,58,.04));border-bottom:1px solid rgba(231,225,218,.7)}
+.library-title{margin:0;font-size:1rem;font-family:var(--font-h)}
+.library-sub{margin-top:4px;color:var(--muted);font-size:.8rem}
+.library-list{padding:10px 16px;max-height:380px;overflow:auto}
+.library-item{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid rgba(231,225,218,.55)}
+.library-item:last-child{border-bottom:none}
+.library-item-title{font-weight:600;color:var(--text);margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.library-item-meta{font-size:.8rem;color:var(--muted)}
+.library-actions{display:flex;gap:6px;flex-shrink:0;align-items:center}
+.status-chip{padding:4px 8px;border-radius:999px;font-size:.7rem;font-weight:700;color:#fff;white-space:nowrap}
+.status-chip.is-published{background:var(--success)}
+.status-chip.is-draft{background:var(--muted)}
+.empty-inline{padding:20px;text-align:center;color:var(--muted);font-size:.9rem}
+.staff-users{margin-top:22px;background:rgba(255,255,255,.96);border:1px solid rgba(231,225,218,.92);border-radius:18px;overflow:hidden;box-shadow:var(--shadow)}
+.staff-users-head{padding:16px 18px;background:linear-gradient(135deg,rgba(182,30,52,.04),rgba(198,154,58,.04));border-bottom:1px solid rgba(231,225,218,.7)}
+.staff-users-body{padding:14px 18px}
+.staff-users-note{color:var(--muted);font-size:.84rem;line-height:1.5;max-width:780px}
+
+@media(max-width:768px){
+  .staff-hero{padding:34px 16px}
+  .library-grid{grid-template-columns:1fr}
+  .library-list{max-height:none}
+  .library-item{flex-direction:column}
+  .library-actions{width:100%;justify-content:flex-start;flex-wrap:wrap}
+}
 
 .stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:16px;margin-bottom:32px}
 .stat-card{background:rgba(255,255,255,.9);border:1px solid rgba(231,225,218,.92);border-radius:var(--radius);padding:22px;text-align:center;box-shadow:var(--shadow)}
@@ -1931,12 +1971,15 @@ function pageCareerLab(id) {
 
 function pageStaff() {
   document.getElementById("app").innerHTML =
-    '<div style="background:linear-gradient(135deg,#16181d 0%,#2b2f39 60%,#3b2025 100%);color:#fff;padding:48px 20px;position:relative;overflow:hidden">' +
-    '<div style="position:absolute;inset:0;background:radial-gradient(circle at 80% 20%, rgba(198,154,58,.12), transparent 24%), radial-gradient(circle at 20% 80%, rgba(182,30,52,.12), transparent 28%);pointer-events:none"></div>' +
-    '<div class="container"><h1 style="color:#fff;margin-bottom:6px;font-weight:400;font-size:2rem">📊 Content Manager</h1><p style="color:rgba(255,255,255,.72);margin:0;font-size:.95rem">Organize and manage your content libraries</p></div></div>' +
-    '<section class="section"><div class="container" style="max-width:1200px">' +
-    '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:36px" id="stat-grid"><div class="spinner"></div></div>' +
-    '<div style="margin-bottom:32px" id="staff-library"></div>' +
+    '<section class="staff-hero">' +
+    '<div class="staff-shell">' +
+    '<h1>Content Library</h1>' +
+    '<p>Manage courses, posts, references, and Career Lab entries from one minimal workspace. Each content type stays separated as your archive grows.</p>' +
+    '<div class="staff-kpis" id="stat-grid"><div class="spinner"></div></div>' +
+    '</div></section>' +
+    '<section class="section"><div class="staff-shell">' +
+    '<div class="library-grid" id="staff-library"><div class="spinner"></div></div>' +
+    '<div class="staff-users" id="users-table-wrap"><div class="spinner"></div></div>' +
     '</div></section>';
 
   Promise.all([
@@ -1954,22 +1997,18 @@ function pageStaff() {
     var labs = results[4];
     var users = results[5];
 
-    // Stats grid
     document.getElementById("stat-grid").innerHTML = [
-      {num:s.totalCourses,        label:"Courses",published:s.publishedCourses},
-      {num:s.totalBlogs,          label:"Posts",published:s.publishedBlogs},
-      {num:s.totalReferences,     label:"References",published:s.publishedReferences},
-      {num:s.totalCareerLabs,     label:"Career Labs",published:s.publishedCareerLabs},
-      {num:s.activeUsers,         label:"Active Users",published:"—"}
-    ].map(function(x){
-      return '<div style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:18px;text-align:center;backdrop-filter:blur(8px)">' +
-             '<div style="font-size:1.8rem;font-weight:700;color:var(--gold);margin-bottom:3px">'+esc(x.num)+'</div>' +
-             '<div style="color:rgba(255,255,255,.6);font-size:.82rem;font-weight:500">'+esc(x.label)+'</div>' +
-             (x.published && x.published !== "—" ? '<div style="color:rgba(198,154,58,.8);font-size:.75rem;margin-top:4px">'+esc(x.published)+' published</div>' : '') +
-             '</div>';
+      {num:s.totalCourses, label:"Courses", published:s.publishedCourses},
+      {num:s.totalBlogs, label:"Posts", published:s.publishedBlogs},
+      {num:s.totalReferences, label:"References", published:s.publishedReferences},
+      {num:s.totalCareerLabs, label:"Career Labs", published:s.publishedCareerLabs},
+      {num:s.activeUsers, label:"Active Users", published:"—"}
+    ].map(function(x) {
+      return '<div class="kpi-card"><div class="kpi-value">' + esc(x.num) + '</div><div class="kpi-label">' + esc(x.label) + '</div>' +
+        (x.published && x.published !== "—" ? '<div class="kpi-meta">' + esc(x.published) + ' published</div>' : '') +
+        '</div>';
     }).join("");
 
-    // Libraries
     var libraries = [
       {
         icon: "📚",
@@ -2017,59 +2056,56 @@ function pageStaff() {
       }
     ];
 
-    var libraryHtml = libraries.map(function(lib) {
+    var libraryHtml = '<div class="library-grid">' + libraries.map(function(lib) {
       var count = lib.items.length;
-      var published = lib.items.filter(function(i){ return lib.getStatus(i) === "Published"; }).length;
-      var itemsHtml = lib.items.length ? 
-        lib.items.map(function(item) {
-          return '<div style="display:flex;align-items:start;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid rgba(231,225,218,.5)">' +
-                 '<div style="flex:1;min-width:0">' +
-                 '<div style="font-weight:500;color:var(--text);margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+esc(lib.getTitle(item))+'</div>' +
-                 '<div style="font-size:.8rem;color:var(--muted)">'+esc(lib.getDesc(item))+'</div>' +
-                 '</div>' +
-                 '<div style="display:flex;gap:6px;flex-shrink:0">' +
-                 '<span style="background:'+( lib.getStatus(item) === "Published" ? "var(--success)" : "var(--muted)")+';color:#fff;padding:3px 8px;border-radius:4px;font-size:.7rem;font-weight:600">'+esc(lib.getStatus(item))+'</span>' +
-                 '<button class="btn btn-ghost btn-sm" style="font-size:.75rem;padding:4px 8px" onclick="'+lib.onEdit(item)+'">✏️</button>' +
-                 '<button class="btn btn-danger btn-sm" style="font-size:.75rem;padding:4px 8px" onclick="'+lib.onDelete(item)+'">🗑️</button>' +
-                 '</div>' +
-                 '</div>';
-        }).join("") :
-        '<div style="padding:20px;text-align:center;color:var(--muted);font-size:.9rem">📭 No items yet</div>';
+      var published = lib.items.filter(function(i) { return lib.getStatus(i) === "Published"; }).length;
+      var itemsHtml = lib.items.length ? lib.items.map(function(item) {
+        var status = lib.getStatus(item);
+        return '<div class="library-item">' +
+          '<div style="min-width:0;flex:1">' +
+          '<div class="library-item-title">' + esc(lib.getTitle(item)) + '</div>' +
+          '<div class="library-item-meta">' + esc(lib.getDesc(item)) + '</div>' +
+          '</div>' +
+          '<div class="library-actions">' +
+          '<span class="status-chip ' + (status === "Published" ? 'is-published' : 'is-draft') + '">' + esc(status) + '</span>' +
+          '<button class="btn btn-ghost btn-sm" onclick="' + lib.onEdit(item) + '">Edit</button>' +
+          '<button class="btn btn-danger btn-sm" onclick="' + lib.onDelete(item) + '">Delete</button>' +
+          '</div>' +
+          '</div>';
+      }).join("") : '<div class="empty-inline">No items yet</div>';
 
-      return '<div style="background:rgba(255,255,255,.95);border:1px solid rgba(231,225,218,.92);border-radius:16px;overflow:hidden;margin-bottom:18px">' +
-             '<div style="background:linear-gradient(135deg,rgba(182,30,52,.05),rgba(198,154,58,.05));padding:16px;border-bottom:1px solid rgba(231,225,218,.5);display:flex;align-items:center;justify-content:space-between;gap:12px">' +
-             '<div><h3 style="margin:0 0 3px;font-size:1.05rem">'+esc(lib.icon)+' '+esc(lib.title)+'</h3><p style="margin:0;color:var(--muted);font-size:.82rem">'+esc(count)+' total • '+esc(published)+' published</p></div>' +
-             '<button class="btn btn-primary" onclick="'+lib.action+'" style="flex-shrink:0">+ Add</button>' +
-             '</div>' +
-             '<div style="max-height:400px;overflow-y:auto;padding:12px 14px">' + itemsHtml + '</div>' +
-             '</div>';
+      return '<article class="library-card">' +
+        '<div class="library-head">' +
+        '<div><h3 class="library-title">' + esc(lib.icon) + ' ' + esc(lib.title) + '</h3><div class="library-sub">' + esc(count) + ' total • ' + esc(published) + ' published</div></div>' +
+        '<button class="btn btn-primary btn-sm" onclick="' + lib.action + '">+ Add</button>' +
+        '</div>' +
+        '<div class="library-list">' + itemsHtml + '</div>' +
+        '</article>';
     }).join("");
 
-    // User management
-    var usersCard = '<div style="background:rgba(255,255,255,.95);border:1px solid rgba(231,225,218,.92);border-radius:16px;overflow:hidden;margin-top:32px">' +
-      '<div style="background:linear-gradient(135deg,rgba(182,30,52,.05),rgba(198,154,58,.05));padding:16px;border-bottom:1px solid rgba(231,225,218,.5)">' +
-      '<h3 style="margin:0;font-size:1.05rem">👥 User Management</h3>' +
-      '</div>';
+    var usersCard = '<div class="staff-users">' +
+      '<div class="staff-users-head"><h3 class="library-title">👥 User Management</h3><div class="staff-users-note">Change roles for editors and students without leaving the portal. Admins keep full access.</div></div>';
 
     if (users && users.length) {
       var roles = ["Student","Editor","Admin"];
-      usersCard += '<div style="overflow-x:auto"><table class="data-table"><thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Actions</th></tr></thead><tbody>' +
+      usersCard += '<div class="staff-users-body"><div style="overflow-x:auto"><table class="data-table"><thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Actions</th></tr></thead><tbody>' +
         users.map(function(u) {
           var isSelf = u.Email === APP_USER.email;
-          var sel = '<select class="form-control" style="padding:5px 8px;font-size:.82rem;width:auto;border-radius:6px" id="role-'+esc(u.Email)+'">'+
+          var sel = '<select class="form-control" style="padding:5px 8px;font-size:.82rem;width:auto;border-radius:8px" id="role-'+esc(u.Email)+'">'+
             roles.map(function(r){ return '<option value="'+r+'"'+(u.Role===r?' selected':'')+'>'+r+'</option>'; }).join("") +
             '</select>';
-          var deleteBtn = isSelf ? '' : '<button class="btn btn-danger btn-sm" style="font-size:.75rem" onclick="_deleteUser(\''+esc(u.Email)+'\')">Delete</button>';
+          var deleteBtn = isSelf ? '' : '<button class="btn btn-danger btn-sm" onclick="_deleteUser(\''+esc(u.Email)+'\')">Delete</button>';
           return '<tr><td style="font-weight:500">'+esc(u.Name||"—")+'</td><td style="font-size:.82rem;color:var(--muted)">'+esc(u.Email)+'</td><td>'+sel+'</td>'+
                  '<td><div class="actions"><button class="btn btn-primary btn-sm" style="font-size:.75rem" onclick="_updateRole(\''+esc(u.Email)+'\')">Save</button>'+deleteBtn+'</div></td></tr>';
         }).join("") +
-        '</tbody></table></div>';
+        '</tbody></table></div></div>';
     } else {
-      usersCard += '<div class="empty"><div class="empty-icon">👤</div><p>No users yet.</p></div>';
+      usersCard += '<div class="staff-users-body"><div class="empty-inline">No users yet</div></div>';
     }
     usersCard += '</div>';
 
-    document.getElementById("staff-library").innerHTML = libraryHtml + usersCard;
+    document.getElementById("staff-library").innerHTML = libraryHtml;
+    document.getElementById("users-table-wrap").innerHTML = usersCard;
   }).catch(defaultErr);
 }
 
