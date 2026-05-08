@@ -33,7 +33,7 @@ a{color:var(--primary);text-decoration:none;transition:color var(--t)}
 a:hover{color:var(--primary-dark)}
 main{flex:1}
 
-h1,h2,h3,h4,h5,h6{font-family:var(--font);font-weight:700;line-height:1.2;color:var(--text);letter-spacing:-.02em}
+h1,h2,h3,h4,h5,h6{font-family:var(--font-h);font-weight:700;line-height:1.2;color:var(--text);letter-spacing:-.02em}
 h1{font-size:clamp(2rem,5vw,3.5rem);margin-bottom:16px}
 h2{font-size:clamp(1.5rem,4vw,2.5rem);margin-bottom:12px}
 h3{font-size:clamp(1.1rem,3vw,1.8rem);margin-bottom:10px}
@@ -49,7 +49,7 @@ p{margin-bottom:12px;color:#475569;line-height:1.75}
 
 .site-header{background:rgba(255,253,251,.96);backdrop-filter:blur(20px);border-bottom:1px solid rgba(232,227,222,.7);position:sticky;top:0;z-index:999;box-shadow:0 2px 8px rgba(0,0,0,.05);padding:14px 24px;height:72px;display:flex;align-items:center}
 .nav-inner{display:flex;align-items:center;justify-content:space-between;gap:32px;max-width:1400px;margin:0 auto;flex:1;width:100%}
-.nav-brand{color:var(--primary);font-family:var(--font);font-size:1.25rem;font-weight:800;cursor:pointer;display:flex;align-items:center;gap:12px;user-select:none;letter-spacing:-.02em;position:relative;z-index:2;text-decoration:none}
+.nav-brand{color:var(--primary);font-family:var(--font-h);font-size:1.25rem;font-weight:800;cursor:pointer;display:flex;align-items:center;gap:12px;user-select:none;letter-spacing:-.02em;position:relative;z-index:2;text-decoration:none}
 .nav-brand img{height:40px;width:auto;border-radius:8px}
 .nav-collapse{display:flex;align-items:center;justify-content:space-between;gap:24px;flex:1;min-width:0}
 .nav-links{display:flex;gap:4px;list-style:none;background:transparent;padding:0;border-radius:0;position:relative;align-items:center;flex:1;overflow-x:auto;border:none;scroll-behavior:smooth}
@@ -97,16 +97,33 @@ p{margin-bottom:12px;color:#475569;line-height:1.75}
   .nav-account-logout{height:36px;padding:0 10px;font-size:.82rem;flex:0 0 auto;background:rgba(239,68,68,.1);color:var(--danger);margin-left:0;margin-top:8px;width:100%}
 }
 
-.hero{background:linear-gradient(135deg,#a01c2e 0%,#c73546 50%,#8b1621 100%);color:#fff;padding:96px 24px;text-align:center;position:relative;overflow:hidden;margin-top:0;display:flex;flex-direction:column;justify-content:center;align-items:center;min-height:60vh;gap:24px}
-.hero::before{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='50' cy='50' r='45' fill='none' stroke='rgba(255,255,255,0.04)' stroke-width='1'/%3E%3Ccircle cx='50' cy='50' r='35' fill='none' stroke='rgba(255,255,255,0.02)' stroke-width='1'/%3E%3C/svg%3E") repeat;opacity:.3;pointer-events:none}
-.hero::after{content:'';position:absolute;inset:0;background:radial-gradient(circle at 30% 30%, rgba(212,175,55,.1), transparent 40%), radial-gradient(circle at 70% 70%, rgba(160,28,46,.2), transparent 60%);pointer-events:none}
-.hero-content{position:relative;z-index:2;max-width:900px;margin:0 auto}
-.hero h1{color:#fff;margin-bottom:8px;font-size:clamp(2.2rem,6vw,4rem);font-weight:700;letter-spacing:-.02em;line-height:1.2;font-family:var(--font-h)}
-.hero-tagline{color:rgba(255,255,255,.92);font-size:clamp(.9rem,1.5vw,1.1rem);margin:0 auto 28px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;font-family:var(--font);font-style:italic}
-.hero p{color:rgba(255,255,255,.85);font-size:clamp(1rem,2vw,1.2rem);max-width:700px;margin:0 auto 28px;font-weight:400;letter-spacing:.02em;line-height:1.6}
+.hero{background:linear-gradient(112deg,rgba(40,8,14,.88) 5%,rgba(138,23,34,.66) 42%,rgba(17,6,8,.72) 100%),url("silveroaksx.jpg");background-size:cover,cover;background-position:center,center;background-repeat:no-repeat;color:#fff;padding:110px 24px;text-align:center;position:relative;overflow:hidden;margin-top:0;display:flex;flex-direction:column;justify-content:center;align-items:center;min-height:74vh;gap:24px;isolation:isolate}
+.hero::before{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg width='120' height='120' viewBox='0 0 120 120' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='60' cy='60' r='52' fill='none' stroke='rgba(255,255,255,0.04)' stroke-width='1'/%3E%3Ccircle cx='60' cy='60' r='42' fill='none' stroke='rgba(255,255,255,0.03)' stroke-width='1'/%3E%3C/svg%3E") repeat;opacity:.32;pointer-events:none;z-index:0}
+.hero::after{content:'';position:absolute;inset:0;background:radial-gradient(circle at 22% 18%, rgba(212,175,55,.18), transparent 38%),radial-gradient(circle at 80% 86%, rgba(160,28,46,.3), transparent 58%),linear-gradient(to top, rgba(0,0,0,.24), transparent 48%);pointer-events:none;z-index:1}
+.hero-content{position:relative;z-index:2;max-width:920px;margin:0 auto;animation:heroContentIn .9s cubic-bezier(.2,.7,.2,1) both}
+.hero-content > *{opacity:0;transform:translateY(20px);animation:heroItemIn .7s cubic-bezier(.2,.7,.2,1) forwards}
+.hero-content > *:nth-child(1){animation-delay:.08s}
+.hero-content > *:nth-child(2){animation-delay:.16s}
+.hero-content > *:nth-child(3){animation-delay:.24s}
+.hero-content > *:nth-child(4){animation-delay:.32s}
+.hero-content > *:nth-child(5){animation-delay:.4s}
+.hero-content > *:nth-child(6){animation-delay:.48s}
+.hero h1{color:#fff;margin-bottom:8px;font-size:clamp(2.2rem,6vw,4rem);font-weight:700;letter-spacing:-.02em;line-height:1.2;font-family:var(--font-h);text-shadow:0 12px 30px rgba(0,0,0,.32)}
+.hero-tagline{color:rgba(255,255,255,.95);font-size:clamp(.9rem,1.5vw,1.1rem);margin:0 auto 28px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;font-family:var(--font);font-style:italic}
+.hero p{color:rgba(255,255,255,.88);font-size:clamp(1rem,2vw,1.2rem);max-width:700px;margin:0 auto 28px;font-weight:400;letter-spacing:.02em;line-height:1.6;text-shadow:0 8px 20px rgba(0,0,0,.24)}
 .hero-cta{display:flex;justify-content:center;gap:16px;flex-wrap:wrap;margin-top:32px;z-index:2;position:relative}
-.hero-img{width:100%;max-width:1000px;margin:0 auto;border-radius:16px;object-fit:cover;max-height:420px;box-shadow:0 25px 60px rgba(0,0,0,.3),0 0 0 1px rgba(255,255,255,.1);display:block;position:relative;z-index:2}
-@media(max-width:768px){.hero{padding:60px 16px;min-height:50vh;gap:20px}.hero h1{font-size:1.8rem}.hero p{font-size:1rem}.hero-cta{flex-direction:column;gap:12px}.hero-img{max-height:280px}}
+.hero-img{display:none}
+@keyframes heroContentIn{from{opacity:0;transform:translateY(18px) scale(.99)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes heroItemIn{to{opacity:1;transform:translateY(0)}}
+@media(max-width:768px){.hero{padding:72px 16px;min-height:62vh;gap:20px;background-position:center}.hero h1{font-size:1.8rem}.hero p{font-size:1rem}.hero-cta{flex-direction:column;gap:12px}}
+
+.reveal-up{opacity:0;transform:translateY(26px);transition:opacity .65s cubic-bezier(.2,.7,.2,1),transform .65s cubic-bezier(.2,.7,.2,1)}
+.reveal-up.in{opacity:1;transform:translateY(0)}
+
+@media(prefers-reduced-motion:reduce){
+  .hero-content,.hero-content > *{animation:none!important;opacity:1!important;transform:none!important}
+  .reveal-up{opacity:1;transform:none;transition:none}
+}
 
 .card{background:#fff;border:1px solid rgba(232,227,222,.5);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;display:flex;flex-direction:column;transition:all var(--t);cursor:pointer;animation:cardEntrance .4s ease-out}
 @keyframes cardEntrance{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
@@ -1319,6 +1336,34 @@ function initAC(inputId, dropId) {
   });
 }
 
+var revealObserver = null;
+function initRevealMotion(root) {
+  var scope = root && root.querySelectorAll ? root : document;
+  var nodes = scope.querySelectorAll(".reveal-up");
+  if (!nodes.length) return;
+
+  if (!("IntersectionObserver" in window)) {
+    nodes.forEach(function(el) { el.classList.add("in"); });
+    return;
+  }
+
+  if (!revealObserver) {
+    revealObserver = new IntersectionObserver(function(entries, obs) {
+      entries.forEach(function(entry) {
+        if (!entry.isIntersecting) return;
+        entry.target.classList.add("in");
+        obs.unobserve(entry.target);
+      });
+    }, { threshold: .14, rootMargin: "0px 0px -48px 0px" });
+  }
+
+  nodes.forEach(function(el) {
+    if (el.dataset.revealBound === "1") return;
+    el.dataset.revealBound = "1";
+    revealObserver.observe(el);
+  });
+}
+
 function fmt(cmd) {
   document.getElementById("f-content") && document.getElementById("f-content").focus();
   document.getElementById("p-content") && document.getElementById("p-content").focus();
@@ -1541,38 +1586,37 @@ function pageHome() {
     '<span class="badge" style="background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.2);padding:6px 12px">📄 PDFs</span>' +
     '<span class="badge" style="background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.2);padding:6px 12px">🎬 Videos</span>' +
     '</div>' +
-    '</div>' +
-    '<img src="silveroaksx.jpg" alt="Silver Oaks Career Council" class="hero-img" onerror="this.style.display=\'none\'"></section>' +
+    '</div></section>' +
 
-    '<section class="section" style="background:#f5ebe0"><div class="container">' +
+    '<section class="section reveal-up" style="background:#f5ebe0"><div class="container">' +
     '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:32px;flex-wrap:wrap;gap:16px">' +
     '<div><h2 style="margin:0">📚 Featured Courses</h2><p style="color:var(--muted);margin:4px 0 0;font-size:.95rem">Popular courses curated for you</p></div>' +
     '<button class="btn btn-ghost" onclick="route(\'courses\')">View All Courses →</button></div>' +
     '<div class="grid-3" id="home-courses"><div class="spinner"></div></div>' +
     '</div></section>' +
 
-    '<section class="section"><div class="container">' +
+    '<section class="section reveal-up"><div class="container">' +
     '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:32px;flex-wrap:wrap;gap:16px">' +
     '<div><h2 style="margin:0">✍️ Latest from Blog</h2><p style="color:var(--muted);margin:4px 0 0;font-size:.95rem">Insights and updates</p></div>' +
     '<button class="btn btn-ghost" onclick="route(\'blog\')">View All Posts →</button></div>' +
     '<div class="grid-3" id="home-posts"><div class="spinner"></div></div>' +
     '</div></section>' +
 
-    '<section class="section" style="background:#f5ebe0"><div class="container">' +
+    '<section class="section reveal-up" style="background:#f5ebe0"><div class="container">' +
     '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:32px;flex-wrap:wrap;gap:16px">' +
     '<div><h2 style="margin:0">📎 Featured References</h2><p style="color:var(--muted);margin:4px 0 0;font-size:.95rem">Essential materials and resources</p></div>' +
     '<button class="btn btn-ghost" onclick="route(\'references\')">View All References →</button></div>' +
     '<div class="grid-3" id="home-refs"><div class="spinner"></div></div>' +
     '</div></section>' +
 
-    '<section class="section" style="background:linear-gradient(135deg,#a01c2e 0%,#c73546 50%,#8b1621 100%);color:#fff;position:relative;overflow:hidden"><div style="position:absolute;inset:0;background:url(\'data:image/svg+xml,%3Csvg width=%27100%27 height=%27100%27 viewBox=%270 0 100 100%27 xmlns=%27http://www.w3.org/2000/svg%27%3E%3Ccircle cx=%2750%27 cy=%2750%27 r=%2745%27 fill=%27none%27 stroke=%27rgba(255,255,255,0.03)%27 stroke-width=%271%27/%3E%3C/svg%3E) repeat;pointer-events:none;opacity:.3"></div><div class="container" style="position:relative;z-index:2">' +
+    '<section class="section reveal-up" style="background:linear-gradient(135deg,#a01c2e 0%,#c73546 50%,#8b1621 100%);color:#fff;position:relative;overflow:hidden"><div style="position:absolute;inset:0;background:url(\'data:image/svg+xml,%3Csvg width=%27100%27 height=%27100%27 viewBox=%270 0 100 100%27 xmlns=%27http://www.w3.org/2000/svg%27%3E%3Ccircle cx=%2750%27 cy=%2750%27 r=%2745%27 fill=%27none%27 stroke=%27rgba(255,255,255,0.03)%27 stroke-width=%271%27/%3E%3C/svg%3E) repeat;pointer-events:none;opacity:.3"></div><div class="container" style="position:relative;z-index:2">' +
     '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:32px;flex-wrap:wrap;gap:16px">' +
     '<div><h2 style="margin:0;color:#fff">🧠 Career Laboratory</h2><p style="color:rgba(255,255,255,.75);margin:4px 0 0;font-size:.95rem">Student research and insights</p></div>' +
     '<button class="btn" style="background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.25)" onclick="route(\'career-lab\')">View All Labs →</button></div>' +
     '<div class="grid-3" id="home-labs"><div class="spinner"></div></div>' +
     '</div></section>' +
 
-    '<section style="padding:60px 24px;text-align:center;background:#f5ebe0;border-top:1px solid #e8e3de"><div class="container">' +
+    '<section class="reveal-up" style="padding:60px 24px;text-align:center;background:#f5ebe0;border-top:1px solid #e8e3de"><div class="container">' +
     '<h2 style="margin-bottom:12px;font-weight:800;font-size:clamp(1.3rem,3vw,2rem)">Everything you need, in one place</h2>' +
     '<p style="color:var(--muted);max-width:680px;margin:0 auto 36px;font-size:1.05rem">From courses to career research—we have curated resources to help you succeed.</p>' +
     '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:16px;max-width:900px;margin:0 auto">' +
@@ -1587,6 +1631,7 @@ function pageHome() {
     '</div></div></section>';
 
   initAC("h-srch", "h-ac");
+  initRevealMotion(document.getElementById("app"));
 
   api("home", {}, function(data) {
     var cEl = document.getElementById("home-courses");
