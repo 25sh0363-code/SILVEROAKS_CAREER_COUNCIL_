@@ -43,6 +43,20 @@ p{margin-bottom:12px;color:#475569;line-height:1.75}
 .container{max-width:1200px;margin:0 auto;padding:0 24px}
 .section{padding:64px 0}
 .grid-3{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px;margin-top:32px}
+.spotlight-wrap{position:relative;display:flex;align-items:center;gap:10px}
+.spotlight-nav{width:44px;height:44px;border-radius:50%;border:1px solid rgba(255,255,255,.45);background:rgba(255,255,255,.22);backdrop-filter:blur(6px);color:#fff;font-size:1.5rem;line-height:1;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;transition:all var(--t);flex:0 0 auto;z-index:2}
+.spotlight-nav:hover{background:rgba(255,255,255,.35);transform:translateY(-2px)}
+.spotlight-track{display:flex;gap:18px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-padding:14vw;padding:8px max(12px,10vw) 26px;flex:1;scrollbar-width:none;mask-image:linear-gradient(to right, transparent 0, #000 10%, #000 90%, transparent 100%)}
+.spotlight-track::-webkit-scrollbar{display:none}
+.spotlight-item{flex:0 0 min(420px,74vw);scroll-snap-align:center;opacity:.52;transform:scale(.9) translateY(10px);transition:transform .45s cubic-bezier(.2,.7,.2,1),opacity .45s cubic-bezier(.2,.7,.2,1);filter:saturate(.78)}
+.spotlight-item .card{height:100%;border-radius:22px;overflow:hidden}
+.spotlight-item.is-active{opacity:1;transform:scale(1) translateY(0);filter:saturate(1)}
+.spotlight-item.is-active .card{box-shadow:0 18px 50px rgba(0,0,0,.22),0 0 0 1px rgba(255,255,255,.2)}
+.spotlight-light .spotlight-nav{border-color:rgba(160,28,46,.25);background:rgba(255,255,255,.92);color:var(--primary)}
+.spotlight-light .spotlight-nav:hover{background:#fff}
+.spotlight-light .spotlight-track{mask-image:linear-gradient(to right, transparent 0, #000 8%, #000 92%, transparent 100%)}
+.spotlight-light .spotlight-item.is-active .card{box-shadow:0 18px 40px rgba(160,28,46,.16),0 0 0 1px rgba(160,28,46,.08)}
+@media(max-width:860px){.spotlight-wrap{gap:6px}.spotlight-nav{width:38px;height:38px;font-size:1.2rem}.spotlight-track{padding-inline:max(6px,4vw)}.spotlight-item{flex-basis:min(340px,85vw)}}
 .flex-between{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px}
 .mt-2{margin-top:16px}.mt-3{margin-top:32px}.mt-4{margin-top:48px}.mb-2{margin-bottom:16px}.mb-3{margin-bottom:32px}.mb-4{margin-bottom:48px}
 .hidden{display:none!important}
@@ -353,7 +367,7 @@ textarea.form-control{min-height:140px;resize:vertical;font-family:inherit}
 <footer class="site-footer hidden" id="site-footer">
   <div class="container">
     <p>🎓 <strong>Career Laboratory Resource Website</strong> &nbsp;|&nbsp; Internal — Silver Oaks Hyderabad &nbsp;|&nbsp; @hyd.silveroaks.co.in only</p>
-    <p class="site-footer-motto">Character and Competence</p>
+    <p class="site-footer-motto">Character before Competence</p>
     <p style="margin-top:6px;opacity:.6">© <span id="footer-year"></span> Silver Oaks Career Council</p>
   </div>
 </footer>
@@ -894,14 +908,15 @@ function route(page, params) {
   document.getElementById("nav-collapse").classList.remove("open");
 
   switch (page) {
-    case "home":    pageHome();    break;
-    case "courses": pageCourses(); break;
+    case "home":    pageHome(_state);    break;
+    case "courses": pageCourses(_state); break;
+    case "search":  pageSearch(_state); break;
     case "course":  pageCourse(_state.id);  break;
-    case "blog":       pageBlog();    break;
+    case "blog":       pageBlog(_state);    break;
     case "post":       pagePost(_state.id);    break;
-    case "references": pageReferences(); break;
+    case "references": pageReferences(_state); break;
     case "reference":  pageReference(_state.id); break;
-    case "career-lab":  pageCareerLabs(); break;
+    case "career-lab":  pageCareerLabs(_state); break;
     case "career-lab-item":  pageCareerLab(_state.id); break;
     case "staff":
       if (APP_USER && APP_USER.isAdmin) pageStaff(); else render403();
@@ -924,6 +939,7 @@ function route(page, params) {
 
 function setActiveNav(page) {
   var navPage = page;
+  if (page === "search") navPage = "home";
   if (page === "course") navPage = "courses";
   if (page === "post") navPage = "blog";
   if (page === "reference") navPage = "references";
@@ -1021,7 +1037,7 @@ async function _apiAsync(action, params) {
     case "careerLab":
       return _loadCareerLab(db, params.id);
     case "search":
-      return _loadSearch(db, params.q);
+      return _loadSearch(db, params.q, params.limit);
     case "stats":
       return _loadStats(db);
     case "allCourses":
@@ -1145,8 +1161,9 @@ async function _loadHomeData(db) {
   };
 }
 
-async function _loadSearch(db, q) {
+async function _loadSearch(db, q, limit) {
   var query = String(q || "").toLowerCase();
+  var max = Math.max(1, Number(limit) || 5);
   var courses = await _selectAll("courses", _toCourse);
   var posts = await _selectAll("blogs", _toPost);
   var references = await _selectAll("reference_materials", _toReference);
@@ -1155,10 +1172,10 @@ async function _loadSearch(db, q) {
     return fields.some(function(field) { return _matchesText(row[field], query); });
   }
   return {
-    courses: courses.filter(function(r){ return match(r, ["Title", "Description", "Instructor", "Category", "Grade"]); }).slice(0, 5),
-    posts: posts.filter(function(r){ return match(r, ["Title", "Content", "Tags"]); }).slice(0, 5),
-    references: references.filter(function(r){ return match(r, ["Title", "Description", "Author", "Category"]); }).slice(0, 5),
-    careerLabs: careerLabs.filter(function(r){ return match(r, ["Title", "Student", "Description", "Mentor", "Category"]); }).slice(0, 5),
+    courses: courses.filter(function(r){ return match(r, ["Title", "Description", "Instructor", "Category", "Grade"]); }).slice(0, max),
+    posts: posts.filter(function(r){ return match(r, ["Title", "Content", "Tags"]); }).slice(0, max),
+    references: references.filter(function(r){ return match(r, ["Title", "Description", "Author", "Category"]); }).slice(0, max),
+    careerLabs: careerLabs.filter(function(r){ return match(r, ["Title", "Student", "Description", "Mentor", "Category"]); }).slice(0, max),
   };
 }
 
@@ -1362,6 +1379,52 @@ function initRevealMotion(root) {
     el.dataset.revealBound = "1";
     revealObserver.observe(el);
   });
+}
+
+function _closestSpotlightItem(track) {
+  var items = Array.from(track.querySelectorAll(".spotlight-item"));
+  if (!items.length) return null;
+  var rect = track.getBoundingClientRect();
+  var center = rect.left + rect.width / 2;
+  var best = items[0];
+  var dist = Infinity;
+  items.forEach(function(item) {
+    var r = item.getBoundingClientRect();
+    var c = r.left + r.width / 2;
+    var d = Math.abs(c - center);
+    if (d < dist) { dist = d; best = item; }
+  });
+  return best;
+}
+
+function _paintSpotlightActive(track) {
+  var items = Array.from(track.querySelectorAll(".spotlight-item"));
+  if (!items.length) return;
+  var active = _closestSpotlightItem(track);
+  items.forEach(function(item) { item.classList.toggle("is-active", item === active); });
+}
+
+function initSpotlight(trackId) {
+  var track = document.getElementById(trackId);
+  if (!track) return;
+  var kids = Array.from(track.children);
+  if (!kids.length || kids[0].classList.contains("empty")) return;
+  kids.forEach(function(child) {
+    if (child.classList.contains("spotlight-item")) return;
+    var wrap = document.createElement("div");
+    wrap.className = "spotlight-item";
+    child.replaceWith(wrap);
+    wrap.appendChild(child);
+  });
+  _paintSpotlightActive(track);
+  track.addEventListener("scroll", function() { _paintSpotlightActive(track); }, { passive: true });
+}
+
+function moveSpotlight(trackId, dir) {
+  var track = document.getElementById(trackId);
+  if (!track) return;
+  var amount = Math.max(280, Math.round(track.clientWidth * 0.78));
+  track.scrollBy({ left: dir * amount, behavior: "smooth" });
 }
 
 function fmt(cmd) {
@@ -1592,28 +1655,28 @@ function pageHome() {
     '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:32px;flex-wrap:wrap;gap:16px">' +
     '<div><h2 style="margin:0">📚 Featured Courses</h2><p style="color:var(--muted);margin:4px 0 0;font-size:.95rem">Popular courses curated for you</p></div>' +
     '<button class="btn btn-ghost" onclick="route(\'courses\')">View All Courses →</button></div>' +
-    '<div class="grid-3" id="home-courses"><div class="spinner"></div></div>' +
+    '<div class="spotlight-wrap spotlight-light"><button class="spotlight-nav" aria-label="Previous featured courses" onclick="moveSpotlight(\'home-courses\',-1)">‹</button><div class="spotlight-track" id="home-courses"><div class="spinner"></div></div><button class="spotlight-nav" aria-label="Next featured courses" onclick="moveSpotlight(\'home-courses\',1)">›</button></div>' +
     '</div></section>' +
 
     '<section class="section reveal-up"><div class="container">' +
     '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:32px;flex-wrap:wrap;gap:16px">' +
     '<div><h2 style="margin:0">✍️ Latest from Blog</h2><p style="color:var(--muted);margin:4px 0 0;font-size:.95rem">Insights and updates</p></div>' +
     '<button class="btn btn-ghost" onclick="route(\'blog\')">View All Posts →</button></div>' +
-    '<div class="grid-3" id="home-posts"><div class="spinner"></div></div>' +
+    '<div class="spotlight-wrap spotlight-light"><button class="spotlight-nav" aria-label="Previous blog posts" onclick="moveSpotlight(\'home-posts\',-1)">‹</button><div class="spotlight-track" id="home-posts"><div class="spinner"></div></div><button class="spotlight-nav" aria-label="Next blog posts" onclick="moveSpotlight(\'home-posts\',1)">›</button></div>' +
     '</div></section>' +
 
     '<section class="section reveal-up" style="background:#f5ebe0"><div class="container">' +
     '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:32px;flex-wrap:wrap;gap:16px">' +
     '<div><h2 style="margin:0">📎 Featured References</h2><p style="color:var(--muted);margin:4px 0 0;font-size:.95rem">Essential materials and resources</p></div>' +
     '<button class="btn btn-ghost" onclick="route(\'references\')">View All References →</button></div>' +
-    '<div class="grid-3" id="home-refs"><div class="spinner"></div></div>' +
+    '<div class="spotlight-wrap spotlight-light"><button class="spotlight-nav" aria-label="Previous references" onclick="moveSpotlight(\'home-refs\',-1)">‹</button><div class="spotlight-track" id="home-refs"><div class="spinner"></div></div><button class="spotlight-nav" aria-label="Next references" onclick="moveSpotlight(\'home-refs\',1)">›</button></div>' +
     '</div></section>' +
 
     '<section class="section reveal-up" style="background:linear-gradient(135deg,#a01c2e 0%,#c73546 50%,#8b1621 100%);color:#fff;position:relative;overflow:hidden"><div style="position:absolute;inset:0;background:url(\'data:image/svg+xml,%3Csvg width=%27100%27 height=%27100%27 viewBox=%270 0 100 100%27 xmlns=%27http://www.w3.org/2000/svg%27%3E%3Ccircle cx=%2750%27 cy=%2750%27 r=%2745%27 fill=%27none%27 stroke=%27rgba(255,255,255,0.03)%27 stroke-width=%271%27/%3E%3C/svg%3E) repeat;pointer-events:none;opacity:.3"></div><div class="container" style="position:relative;z-index:2">' +
     '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:32px;flex-wrap:wrap;gap:16px">' +
     '<div><h2 style="margin:0;color:#fff">🧠 Career Laboratory</h2><p style="color:rgba(255,255,255,.75);margin:4px 0 0;font-size:.95rem">Student research and insights</p></div>' +
     '<button class="btn" style="background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.25)" onclick="route(\'career-lab\')">View All Labs →</button></div>' +
-    '<div class="grid-3" id="home-labs"><div class="spinner"></div></div>' +
+    '<div class="spotlight-wrap"><button class="spotlight-nav" aria-label="Previous career labs" onclick="moveSpotlight(\'home-labs\',-1)">‹</button><div class="spotlight-track" id="home-labs"><div class="spinner"></div></div><button class="spotlight-nav" aria-label="Next career labs" onclick="moveSpotlight(\'home-labs\',1)">›</button></div>' +
     '</div></section>' +
 
     '<section class="reveal-up" style="padding:60px 24px;text-align:center;background:#f5ebe0;border-top:1px solid #e8e3de"><div class="container">' +
@@ -1632,33 +1695,92 @@ function pageHome() {
 
   initAC("h-srch", "h-ac");
   initRevealMotion(document.getElementById("app"));
+  var hSrch = document.getElementById("h-srch");
+  if (hSrch) hSrch.addEventListener("keydown", function(e) { if (e.key === "Enter") doHomeSearch(); });
 
   api("home", {}, function(data) {
     var cEl = document.getElementById("home-courses");
     if (cEl) cEl.innerHTML = (data.featuredCourses && data.featuredCourses.length)
       ? data.featuredCourses.map(courseCard).join("")
       : '<div class="empty" style="grid-column:1/-1"><div class="empty-icon">📭</div><p>No courses yet.</p></div>';
+    initSpotlight("home-courses");
 
     var pEl = document.getElementById("home-posts");
     if (pEl) pEl.innerHTML = (data.featuredPosts && data.featuredPosts.length)
       ? data.featuredPosts.map(postCard).join("")
       : '<div class="empty" style="grid-column:1/-1"><div class="empty-icon">📭</div><p>No posts yet.</p></div>';
+    initSpotlight("home-posts");
 
     var rEl = document.getElementById("home-refs");
     if (rEl) rEl.innerHTML = (data.featuredReferences && data.featuredReferences.length)
       ? data.featuredReferences.map(referenceCard).join("")
       : '<div class="empty" style="grid-column:1/-1"><div class="empty-icon">📭</div><p>No references yet.</p></div>';
+    initSpotlight("home-refs");
 
     var lEl = document.getElementById("home-labs");
     if (lEl) lEl.innerHTML = (data.featuredCareerLabs && data.featuredCareerLabs.length)
       ? data.featuredCareerLabs.map(careerLabCard).join("")
       : '<div class="empty" style="grid-column:1/-1"><div class="empty-icon">📭</div><p>No career labs yet.</p></div>';
+    initSpotlight("home-labs");
   });
 }
 
 function doHomeSearch() {
   var el = document.getElementById("h-srch");
-  route("courses", { q: el ? el.value.trim() : "" });
+  route("search", { q: el ? el.value.trim() : "" });
+}
+
+var _sState = { q: "" };
+function pageSearch(opts) {
+  if (opts) _sState.q = (opts.q || "").trim();
+  document.getElementById("app").innerHTML =
+    '<div class="page-header"><div class="container"><h1>🔎 Search Everything</h1><p>Find results across courses, blog posts, references, and career labs.</p></div></div>' +
+    '<section class="section"><div class="container">' +
+    '<div class="search-bar" style="max-width:none;margin-bottom:20px">' +
+    '<div class="ac-wrap"><input id="gs-srch" type="text" placeholder="Search all resources…" value="'+esc(_sState.q)+'" autocomplete="off"><div class="ac-drop" id="gs-ac"></div></div>' +
+    '<button class="btn btn-primary" onclick="runGlobalSearch()">Search</button>' +
+    (_sState.q ? '<button class="btn btn-ghost" onclick="route(\'search\',{q:\'\'})">Clear</button>' : '') +
+    '</div>' +
+    '<div id="gs-out"><div class="spinner"></div></div>' +
+    '</div></section>';
+
+  initAC("gs-srch", "gs-ac");
+  var inp = document.getElementById("gs-srch");
+  if (inp) inp.addEventListener("keydown", function(e) { if (e.key === "Enter") runGlobalSearch(); });
+
+  if (!_sState.q) {
+    document.getElementById("gs-out").innerHTML = '<div class="empty"><div class="empty-icon">🧭</div><p>Type keywords to search all sections.</p></div>';
+    return;
+  }
+
+  apiAsync("search", { q: _sState.q, limit: 12 }).then(function(res) {
+    var total = (res.courses||[]).length + (res.posts||[]).length + (res.references||[]).length + (res.careerLabs||[]).length;
+    var html = '<p style="margin-bottom:24px;color:var(--muted)">Found '+total+' result'+(total===1?'':'s')+' for <strong>"'+esc(_sState.q)+'"</strong>.</p>';
+
+    function block(title, icon, rows, page, cardFn) {
+      if (!rows || !rows.length) return '';
+      return '<div class="reveal-up" style="margin-bottom:38px">' +
+        '<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px">' +
+        '<h2 style="margin:0;font-size:1.45rem">'+icon+' '+title+'</h2>' +
+        '<button class="btn btn-ghost" onclick="route(\''+page+'\',{q:\''+esc(_sState.q)+'\'})">Open '+title+' →</button>' +
+        '</div>' +
+        '<div class="grid-3">'+rows.map(cardFn).join('')+'</div></div>';
+    }
+
+    html += block("Courses", "📚", res.courses, "courses", courseCard);
+    html += block("Blog Posts", "✍️", res.posts, "blog", postCard);
+    html += block("References", "📎", res.references, "references", referenceCard);
+    html += block("Career Labs", "🧠", res.careerLabs, "career-lab", careerLabCard);
+
+    if (total === 0) html += '<div class="empty"><div class="empty-icon">📭</div><p>No results found. Try a different keyword.</p></div>';
+    document.getElementById("gs-out").innerHTML = html;
+    initRevealMotion(document.getElementById("gs-out"));
+  }).catch(defaultErr);
+}
+
+function runGlobalSearch() {
+  var el = document.getElementById("gs-srch");
+  route("search", { q: el ? el.value.trim() : "" });
 }
 
 var _cState = { q:"", category:"", grade:"", offset:0 };
