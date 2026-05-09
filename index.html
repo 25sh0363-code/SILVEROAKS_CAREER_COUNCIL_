@@ -69,7 +69,10 @@ p{margin-bottom:12px;color:#475569;line-height:1.75}
 .spotlight-nav:hover{background:rgba(255,255,255,.35);transform:translateY(-2px)}
 .spotlight-track{display:flex;gap:18px;overflow-x:auto;-webkit-overflow-scrolling:touch;scroll-snap-type:x mandatory;scroll-padding:14vw;padding:8px max(12px,10vw) 26px;flex:1;scrollbar-width:none;mask-image:linear-gradient(to right, transparent 0, #000 10%, #000 90%, transparent 100%)}
 @media(max-width:768px){
-  .spotlight-track{gap:12px;padding:8px 8px 26px 8px;scroll-padding:50vw}
+  .spotlight-track{gap:12px;padding:8px 8px 26px 8px;scroll-padding:50vw;mask-image:none!important}
+}
+@media(max-width:640px){
+  .spotlight-track{mask-image:none!important;padding:6px 0 26px 0}
 }
 .spotlight-track::-webkit-scrollbar{display:none}
 .spotlight-item{flex:0 0 min(420px,90vw);scroll-snap-align:center;opacity:.52;transform:scale(.9) translateY(10px);transition:transform .45s cubic-bezier(.2,.7,.2,1),opacity .45s cubic-bezier(.2,.7,.2,1);filter:saturate(.78)}
@@ -80,12 +83,17 @@ p{margin-bottom:12px;color:#475569;line-height:1.75}
   .spotlight-item{flex-basis:100vw;transform:scale(.95) translateY(8px)}
   .spotlight-item.is-active{transform:scale(1) translateY(0);opacity:1}
 }
-.spotlight-item .card{height:100%;border-radius:22px;overflow:hidden}
+.spotlight-item .card{height:100%;border-radius:22px;overflow:hidden;display:flex;flex-direction:column;background:#fff}
+.spotlight-item .card img, .spotlight-item .card iframe{width:100%;display:block;object-fit:cover}
+.spotlight-item .card .card-body{flex:1;overflow-y:auto;min-height:auto}
 .spotlight-item.is-active{opacity:1;transform:scale(1) translateY(0);filter:saturate(1)}
 .spotlight-item.is-active .card{box-shadow:0 18px 50px rgba(0,0,0,.22),0 0 0 1px rgba(255,255,255,.2)}
 .spotlight-light .spotlight-nav{border-color:rgba(160,28,46,.25);background:rgba(255,255,255,.92);color:var(--primary)}
 .spotlight-light .spotlight-nav:hover{background:#fff}
 .spotlight-light .spotlight-track{mask-image:linear-gradient(to right, transparent 0, #000 8%, #000 92%, transparent 100%)}
+@media(max-width:768px){
+  .spotlight-light .spotlight-track{mask-image:none!important}
+}
 .spotlight-light .spotlight-item.is-active .card{box-shadow:0 18px 40px rgba(160,28,46,.16),0 0 0 1px rgba(160,28,46,.08)}
 @media(max-width:860px){.spotlight-wrap{gap:6px}.spotlight-nav{width:38px;height:38px;font-size:1.2rem}.spotlight-track{padding-inline:max(6px,4vw)}.spotlight-item{flex-basis:min(340px,85vw)}}
 .flex-between{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px}
@@ -664,13 +672,11 @@ function _normalizeStatus(row) {
 
 function _youtubeEmbed(url) {
   if (!url) return "";
-  var m = url.match(/[?&]v=([^&]+)/);
-  if (m) return "https://www.youtube.com/embed/" + m[1];
-  m = url.match(/youtu\.be\/([^?]+)/);
-  if (m) return "https://www.youtube.com/embed/" + m[1];
-  m = url.match(/embed\/([^?]+)/);
-  if (m) return "https://www.youtube.com/embed/" + m[1];
-  return "";
+  var videoId = "";
+  var m = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/);
+  if (m) videoId = m[1];
+  if (!videoId) return "";
+  return "https://www.youtube.com/embed/" + videoId + "?rel=0&modestbranding=1&fs=1";
 }
 
 function _pdfDownload(url) {
@@ -1940,7 +1946,7 @@ function pageCourse(id) {
     
     if (c._embedUrl) {
       html += '<div class="card mb-3"><div class="card-body" style="padding:18px 18px 12px"><h3>🎬 Video Lesson</h3></div>' +
-        '<div class="video-wrap"><iframe src="'+esc(c._embedUrl)+'" allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture" allowfullscreen></iframe></div></div>';
+        '<div class="video-wrap"><iframe src="'+esc(c._embedUrl)+'" allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture" allowfullscreen referrerpolicy="no-referrer" title="Video lesson"></iframe></div></div>';
     }
 
     
@@ -2132,7 +2138,7 @@ function pageReference(id) {
 
     if (r._embedUrl) {
       html += '<div class="card mb-3"><div class="card-body" style="padding:18px 18px 12px"><h3>🎬 Video</h3></div>' +
-        '<div class="video-wrap"><iframe src="'+esc(r._embedUrl)+'" allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture" allowfullscreen></iframe></div></div>';
+        '<div class="video-wrap"><iframe src="'+esc(r._embedUrl)+'" allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture" allowfullscreen referrerpolicy="no-referrer" title="Video"></iframe></div></div>';
     }
 
     if (r._downloadUrl) {
@@ -2235,7 +2241,7 @@ function pageCareerLab(id) {
 
     if (l._embedUrl) {
       html += '<div class="card mb-3"><div class="card-body" style="padding:18px 18px 12px"><h3>🎬 Research Video</h3></div>' +
-        '<div class="video-wrap"><iframe src="'+esc(l._embedUrl)+'" allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture" allowfullscreen></iframe></div></div>';
+        '<div class="video-wrap"><iframe src="'+esc(l._embedUrl)+'" allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture" allowfullscreen referrerpolicy="no-referrer" title="Research video"></iframe></div></div>';
     }
 
     if (l._downloadUrl) {
